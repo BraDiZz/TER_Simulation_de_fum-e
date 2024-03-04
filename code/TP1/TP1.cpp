@@ -6,7 +6,6 @@
 #include <random>
 // Include GLEW
 #include <GL/glew.h>
-
 // Include GLFW
 #include <GLFW/glfw3.h>
 GLFWwindow* window;
@@ -22,6 +21,12 @@ using namespace glm;
 #include <common/objloader.hpp>
 #include <common/vboindexer.hpp>
 
+// include de imgui
+// #include <TP1/imgui/imgui.h>
+// #include <TP1/imgui/imgui_impl_glfw.h>
+// #include <TP1/imgui/imgui_impl_opengl3.h>
+#include <GLFW/glfw3.h>
+
 void processInput(GLFWwindow *window);
 
 // settings
@@ -29,7 +34,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-glm::vec3 camera_position   = glm::vec3(0.0f, 0.0f,  3.0f);
+glm::vec3 camera_position   = glm::vec3(0.0f, 0.0f,  6.0f);
 glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 camera_up    = glm::vec3(0.0f, 1.0f,  0.0f);
 
@@ -71,6 +76,7 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
     indices.push_back(0);
     indices.push_back(1);
     indices.push_back(1);
+
 
     indices.push_back(1);
     indices.push_back(2);
@@ -173,6 +179,13 @@ int main( void )
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // Initialisation ImGui
+    // IMGUI_CHECKVERSION();
+    // ImGui::CreateContext();
+    // ImGuiIO& io = ImGui::GetIO(); (void)io;
+    // ImGui_ImplGlfw_InitForOpenGL(window, true);
+    // ImGui_ImplOpenGL3_Init("#version 130");
 
     // Open a window and create its OpenGL context
     window = glfwCreateWindow( SCR_WIDTH, SCR_HEIGHT, "TP1 - GLFW", NULL, NULL);

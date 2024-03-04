@@ -1,9 +1,9 @@
 
-if (NOT EXISTS "/home/e20230010831/Bureau/Master2/TER/TP1_code/build/external/glfw-3.1.2/install_manifest.txt")
-  message(FATAL_ERROR "Cannot find install manifest: \"/home/e20230010831/Bureau/Master2/TER/TP1_code/build/external/glfw-3.1.2/install_manifest.txt\"")
+if (NOT EXISTS "/home/e20230010831/Bureau/Master2/TER/TER_BIB/code/build/external/glfw-3.1.2/install_manifest.txt")
+  message(FATAL_ERROR "Cannot find install manifest: \"/home/e20230010831/Bureau/Master2/TER/TER_BIB/code/build/external/glfw-3.1.2/install_manifest.txt\"")
 endif()
 
-file(READ "/home/e20230010831/Bureau/Master2/TER/TP1_code/build/external/glfw-3.1.2/install_manifest.txt" files)
+file(READ "/home/e20230010831/Bureau/Master2/TER/TER_BIB/code/build/external/glfw-3.1.2/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 foreach (file ${files})
