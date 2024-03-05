@@ -1,4 +1,4 @@
-# Install script for directory: /home/e20230010831/Bureau/Master2/TER/TER_BIB/code
+# Install script for directory: /home/e20230010831/Bureau/TER_BIB/code
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,7 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/e20230010831/Bureau/Master2/TER/TER_BIB/code/build/external/cmake_install.cmake")
+  include("/home/e20230010831/Bureau/TER_BIB/code/build/external/cmake_install.cmake")
 
 endif()
 
@@ -56,5 +56,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/e20230010831/Bureau/Master2/TER/TER_BIB/code/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/e20230010831/Bureau/TER_BIB/code/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

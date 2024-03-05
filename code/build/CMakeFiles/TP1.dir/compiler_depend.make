@@ -326,7 +326,13 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   ../external/glm-0.9.7.1/glm/gtc/matrix_transform.inl \
   ../common/shader.hpp \
   ../common/objloader.hpp \
-  ../common/vboindexer.hpp
+  ../common/vboindexer.hpp \
+  ../TP1/imgui/imgui.h \
+  ../TP1/imgui/imconfig.h \
+  /usr/include/string.h \
+  /usr/include/strings.h \
+  ../TP1/imgui/backends/imgui_impl_glfw.h \
+  ../TP1/imgui/backends/imgui_impl_opengl3.h
 
 CMakeFiles/TP1.dir/common/controls.cpp.o: ../common/controls.cpp \
   /usr/include/stdc-predef.h \
@@ -1417,8 +1423,6 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/fstream:
 
-/usr/include/strings.h:
-
 ../common/objloader.cpp:
 
 ../common/controls.hpp:
@@ -1426,6 +1430,14 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/KHR/khrplatform.h:
 
 /usr/include/GL/glext.h:
+
+../TP1/imgui/backends/imgui_impl_opengl3.h:
+
+../TP1/imgui/backends/imgui_impl_glfw.h:
+
+/usr/include/strings.h:
+
+../TP1/imgui/imconfig.h:
 
 ../common/vboindexer.hpp:
 
@@ -2012,6 +2024,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/x86_64-linux-gnu/bits/math-vector.h:
 
 /usr/include/c++/11/cassert:
+
+../TP1/imgui/imgui.h:
 
 ../external/glm-0.9.7.1/glm/gtc/constants.inl:
 

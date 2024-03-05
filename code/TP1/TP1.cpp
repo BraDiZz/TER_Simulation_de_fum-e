@@ -22,9 +22,9 @@ using namespace glm;
 #include <common/vboindexer.hpp>
 
 // include de imgui
-// #include <TP1/imgui/imgui.h>
-// #include <TP1/imgui/imgui_impl_glfw.h>
-// #include <TP1/imgui/imgui_impl_opengl3.h>
+#include <TP1/imgui/imgui.h>
+#include <TP1/imgui/backends/imgui_impl_glfw.h>
+#include <TP1/imgui/backends/imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
 
 void processInput(GLFWwindow *window);
@@ -180,12 +180,6 @@ int main( void )
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Initialisation ImGui
-    // IMGUI_CHECKVERSION();
-    // ImGui::CreateContext();
-    // ImGuiIO& io = ImGui::GetIO(); (void)io;
-    // ImGui_ImplGlfw_InitForOpenGL(window, true);
-    // ImGui_ImplOpenGL3_Init("#version 130");
 
     // Open a window and create its OpenGL context
     window = glfwCreateWindow( SCR_WIDTH, SCR_HEIGHT, "TP1 - GLFW", NULL, NULL);
@@ -196,6 +190,13 @@ int main( void )
         return -1;
     }
     glfwMakeContextCurrent(window);
+
+    // Initialiser ImGui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
 
     // Initialize GLEW
     glewExperimental = true; // Needed for core profile

@@ -1,4 +1,4 @@
-# Install script for directory: /home/e20230010831/Bureau/Master2/TER/TER_BIB/code/external
+# Install script for directory: /home/e20230010831/Bureau/TER_BIB/code/external
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,7 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/e20230010831/Bureau/Master2/TER/TER_BIB/code/build/external/glfw-3.1.2/cmake_install.cmake")
+  include("/home/e20230010831/Bureau/TER_BIB/code/build/external/glfw-3.1.2/cmake_install.cmake")
 
 endif()
 

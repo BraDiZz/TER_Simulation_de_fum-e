@@ -66,11 +66,11 @@ add_executable(TP1
 	common/objloader.hpp
 	common/vboindexer.cpp
 	common/vboindexer.hpp
-	#TP1/imgui/imgui_impl_opengl3.cpp
-	#TP1/imgui/imgui_impl_opengl3.h
-	#TP1/imgui/imgui_impl_glfw.cpp
-	#TP1/imgui/imgui_impl_glfw.h
-	#TP1/imgui/imgui_impl_opengl3_loader.h
+	#TP1/imgui/backends/imgui_impl_opengl3.cpp
+	#TP1/imgui/backends/imgui_impl_opengl3.h
+	#TP1/imgui/backends/imgui_impl_glfw.cpp
+	#TP1/imgui/backends/imgui_impl_glfw.h
+	#TP1/imgui/backends/imgui_impl_opengl3_loader.h
 	
         TP1/vertex_shader.glsl
         TP1/fragment_shader.glsl
