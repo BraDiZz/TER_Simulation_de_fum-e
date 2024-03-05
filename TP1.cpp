@@ -15,14 +15,12 @@ GLFWwindow* window;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include <random>
 
 using namespace glm;
 
 #include <common/shader.hpp>
 #include <common/objloader.hpp>
 #include <common/vboindexer.hpp>
-#include <common/controls.hpp>
 
 void processInput(GLFWwindow *window);
 
@@ -43,132 +41,16 @@ float lastFrame = 0.0f;
 float angle = 0.;
 float zoom = 1.;
 
-int nX=16;
-int nY=16;
-
-bool orbital = true;
-
-/*******************************************************************************/
-
-struct Triangle {
-    inline Triangle () {
-        v[0] = v[1] = v[2] = 0;
-    }
-    inline Triangle (const Triangle & t) {
-        v[0] = t.v[0];   v[1] = t.v[1];   v[2] = t.v[2];
-    }
-    inline Triangle (unsigned int v0, unsigned int v1, unsigned int v2) {
-        v[0] = v0;   v[1] = v1;   v[2] = v2;
-    }
-    unsigned int & operator [] (unsigned int iv) { return v[iv]; }
-    unsigned int operator [] (unsigned int iv) const { return v[iv]; }
-    inline virtual ~Triangle () {}
-    inline Triangle & operator = (const Triangle & t) {
-        v[0] = t.v[0];   v[1] = t.v[1];   v[2] = t.v[2];
-        return (*this);
-    }
-    // membres :
-    unsigned int v[3];
-};
+float distance_from_particle = 2.0;
 
 struct Particle {
-    glm::vec3 position;   
-    glm::vec3 velocity;   
-    float lifetime;       
-    float size;          
-    glm::vec4 color;
+    glm::vec3 position;
 };
 
-int idx(int i, int j, int nX, int nY){
-    return i * nY + j; 
-}
 
-float generateRandomFloat(float min, float max) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dis(min, max);
-    return dis(gen);
-}
-
-// Fonction pour réinitialiser une particule avec de nouvelles valeurs aléatoires
-void resetParticle(Particle& particle) {
-    // Utilisation d'une distribution uniforme pour générer des valeurs aléatoires
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
-
-    // Réinitialiser la position de la particule à une position aléatoire dans un cube
-    particle.position = glm::vec3(dis(gen), dis(gen), dis(gen));
-
-    // Réinitialiser la vitesse de la particule avec une petite variation aléatoire
-    particle.velocity = glm::vec3(dis(gen) * 0.1f, dis(gen) * 0.1f, dis(gen) * 0.1f);
-
-    // Réinitialiser la durée de vie de la particule avec une valeur aléatoire entre 1 et 5
-    particle.lifetime = dis(gen) * 4.0f + 1.0f;
-
-    // Réinitialiser la taille de la particule avec une valeur aléatoire entre 0.1 et 1.0
-    particle.size = dis(gen) * 0.5f + 0.5f;
-
-    // Réinitialiser la couleur de la particule avec une teinte de gris aléatoire
-    float gray = dis(gen) * 0.5f + 0.5f; // Valeur entre 0.5 et 1.0
-    particle.color = glm::vec4(gray, gray, gray, 1.0f);
-}
-
-void updateParticles(std::vector<Particle>& particles, float deltaTime) {
-    for (auto& particle : particles) {
-        particle.position += particle.velocity * deltaTime;
-        particle.lifetime -= deltaTime;
-        if (particle.lifetime <= 0.0f) {
-            resetParticle(particle);
-        }
-    }
-}
-
-void createCube(std::vector<glm::vec3>& vertices, std::vector<unsigned short>& indices) {
-    // Define the vertices of the cube
-    float sideLength = 1.0f;
-    std::vector<glm::vec3> cubeVertices = {
-        // Front face
-        glm::vec3(-sideLength, -sideLength, sideLength),
-        glm::vec3(sideLength, -sideLength, sideLength),
-        glm::vec3(sideLength, sideLength, sideLength),
-        glm::vec3(-sideLength, sideLength, sideLength),
-        // Back face
-        glm::vec3(-sideLength, -sideLength, -sideLength),
-        glm::vec3(sideLength, -sideLength, -sideLength),
-        glm::vec3(sideLength, sideLength, -sideLength),
-        glm::vec3(-sideLength, sideLength, -sideLength)
-    };
-
-    // Define the indices of the cube
-    std::vector<unsigned short> cubeIndices = {
-        0, 1, 2, 3, // Front face
-        1, 5, 6, 2, // Right face
-        4, 5, 6, 7, // Back face
-        0, 4, 7, 3, // Left face
-        0, 1, 5, 4, // Bottom face
-        2, 6, 7, 3  // Top face
-    };
-
-    // Add cube vertices to the vertices vector
-    vertices.insert(vertices.end(), cubeVertices.begin(), cubeVertices.end());
-
-    // Add cube indices to the indices vector
-    indices.insert(indices.end(), cubeIndices.begin(), cubeIndices.end());
-}
-
-void centerCameraOnSurface(std::vector<glm::vec3>& vertices, glm::vec3& camera_position, glm::vec3& camera_target) {
-    // on trouve le centre de la surface
-    glm::vec3 center(0.0f);
-    for (const auto& vertex : vertices) {
-        center += vertex;
-    }
-    center /= static_cast<float>(vertices.size());
-
-    // puis on ajuste la position et la cible de la caméra
-    camera_position = center + glm::vec3(0.0f, 0.0f, 5.0f);
-    camera_target = glm::normalize(center - camera_position);
-}
+// Nombre de particules
+const int numParticles = 1000;
+/*******************************************************************************/
 
 int main( void )
 {
@@ -215,7 +97,8 @@ int main( void )
     glfwSetCursorPos(window, 1024/2, 768/2);
 
     // Dark blue background
-    glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
+    // glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -234,6 +117,7 @@ int main( void )
 
     /*****************TODO***********************/
     // Get a handle for our "Model View Projection" matrices uniforms
+
     GLuint ModelMatrix = glGetUniformLocation(programID, "Model");
     GLuint ViewMatrix = glGetUniformLocation(programID, "View");
     GLuint ProjectionMatrix = glGetUniformLocation(programID,"Projection");
@@ -247,57 +131,40 @@ int main( void )
     std::vector<std::vector<unsigned short> > triangles;
     std::vector<glm::vec3> indexed_vertices;
 
-
-    // Déclaration et initialisation des particules
-    std::vector<Particle> particles;
-    for (int i = 0; i < 100; ++i) {
-        Particle particle;
-        resetParticle(particle); // Initialiser chaque particule avec des valeurs aléatoires
-        particles.push_back(particle);
-    }
-
-
     //Chargement du fichier de maillage
     // std::string filename("chair.off");
     // loadOFF(filename, indexed_vertices, indices, triangles );
 
-    // Load it into a VBO
-    // setTesselatedSquare(&indices,&indexed_vertices,nX,nY);
+    Particle particles[numParticles];
 
-     // Création du cube
-    createCube(indexed_vertices, indices); // A corrigez
+    for (int i = 0; i < numParticles; ++i) {
+        particles[i].position = glm::vec3(0.0f, 0.0f, 0.0f);
+    }
 
-    // Centrer la caméra sur la surface
-    centerCameraOnSurface(indexed_vertices, camera_position, camera_target);
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    GLuint vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
-
-    // Generate a buffer for the indices as well
-    GLuint elementbuffer;
-    glGenBuffers(1, &elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
-
-    GLuint particles_position_buffer;
-    glGenBuffers(1, &particles_position_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-    glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Particle), &particles[0].position, GL_STREAM_DRAW);
-
+    // Generate a buffer for the particle position
+    GLuint particleBuffer;
+    glGenBuffers(1, &particleBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
+    glBufferData(GL_ARRAY_BUFFER, numParticles * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
 
+
+
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
-    do{
+    // Calculez le vecteur de direction de la caméra vers la particule
+    glm::vec3 camera_direction = glm::normalize(glm::vec3(0.f, 0.f, 0.f) - camera_position);
+
+    // Mettez à jour la position de la caméra pour centrer la particule
+    camera_position = glm::vec3(0.f, 0.f, 0.f) - camera_direction * distance_from_particle;
+
+do {
+
         // Measure speed
         // per-frame time logic
         // --------------------
@@ -309,8 +176,6 @@ int main( void )
         // -----
         processInput(window);
 
-        updateParticles(particles, deltaTime);
-
 
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -318,12 +183,60 @@ int main( void )
         // Use our shader
         glUseProgram(programID);
 
+        // for (int i = 0; i < numParticles; ++i) {
+        //     particles[i].position += glm::vec3(0.1f, 0.1f, 0.0f) * deltaTime; // Exemple : translation vers la droite
+        // }
+
+        const float pi = glm::pi<float>();
+
+
+        const float translationRange = 5.0f; // Adjust the range as needed
+
+        // for (int i = 0; i < numParticles; ++i) {
+        //     // Set the initial position to the origin
+        //     particles[i].position = glm::vec3(0.0f, 0.0f, 0.0f);
+
+        //     // Generate random translations within the predefined range
+        //     float translateX = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 2.0f * translationRange;
+        //     float translateY = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 2.0f * translationRange;
+        //     float translateZ = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 2.0f * translationRange;
+
+        //     // Update the position based on random translations and delta time
+        //     particles[i].position += glm::vec3(translateX, translateY, translateZ) * deltaTime;
+        // }
+
+        for (int i = 0; i < numParticles; ++i) {
+        // Générez des positions initiales aléatoires entre -0.5 et 0.5
+                float initialX = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 1.0f; // Adjust the scale as needed
+                float initialY = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 1.0f;
+                float initialZ = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 1.0f;
+
+                particles[i].position = glm::vec3(initialX, initialY, initialZ);
+
+                // Générez un angle aléatoire sur une sphère
+                float theta = static_cast<float>(rand()) / RAND_MAX * 2.0f * pi;
+                float phi = static_cast<float>(rand()) / RAND_MAX * pi;
+
+            // Calculez les coordonnées sphériques en coordonnées cartésiennes
+                float x = std::sin(phi) * std::cos(theta);
+                float y = std::sin(phi) * std::sin(theta);
+                float z = std::cos(phi);
+
+                glm::vec3 randomDirection(x, y, z);
+
+            // Mise à jour de la position en fonction de la direction et du delta time
+                particles[i].position += randomDirection * deltaTime;
+            }
+            // Mettez à jour le VBO avec les nouvelles positions des particules
+        glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, numParticles * sizeof(glm::vec3), &particles[0].position);
+            // glBufferData(GL_ARRAY_BUFFER, numParticles * sizeof(glm::vec3), particles, GL_STATIC_DRAW);
+
 
         /*****************TODO***********************/
         // Model matrix : an identity matrix (model will be at the origin) then change
         glm::mat4 Model = glm::mat4(1.f);
-        // Model = glm::rotate(Model,angle,glm::vec3(0.f,1.f,0.f));
-
+        Model = glm::rotate(Model,angle,glm::vec3(0.f,1.f,0.f));
 
         // View matrix : camera/view transformation lookat() utiliser camera_position camera_target camera_up
         glm::mat4 View = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
@@ -334,81 +247,40 @@ int main( void )
 
         // Send our transformation to the currently bound shader,
         // in the "Model View Projection" to the shader uniforms.
+
         glUniformMatrix4fv(ModelMatrix, 1, GL_FALSE, &Model[0][0]);
         glUniformMatrix4fv(ViewMatrix, 1, GL_FALSE, &View[0][0]);
         glUniformMatrix4fv(ProjectionMatrix, 1, GL_FALSE, &Projection[0][0]);
 
+        // Model matrix : an identity matrix (model will be at the origin) then change
+
+        // View matrix : camera/view transformation lookat() utiliser camera_position camera_target camera_up
+
+        // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+
+        // Send our transformation to the currently bound shader,
+        // in the "Model View Projection" to the shader uniforms
+
         /****************************************/
 
-        // 1rst attribute buffer : vertices
+
+        // Set the particle position attribute
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
         glVertexAttribPointer(
-                    0,                  // attribute
-                    3,                  // size
-                    GL_FLOAT,           // type
-                    GL_FALSE,           // normalized?
-                    0,                  // stride
-                    (void*)0            // array buffer offset
-                    );
+            0,             // attribute
+            3,             // size (vec3)
+            GL_FLOAT,      // type
+            GL_FALSE,      // normalized?
+            0,             // stride
+            (void*)0       // array buffer offset
+        );
 
-        // Index buffer
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-
-        // Draw the triangles !
-        glDrawElements(
-                    GL_QUADS,      // mode
-                    indices.size(),    // count
-                    GL_UNSIGNED_SHORT,   // type
-                    (void*)0           // element array buffer offset
-                    );
+        // Draw the particle
+        glDrawArrays(GL_POINTS, 0, numParticles);
+        //glDrawArrays(GL_POINTS, 0, 1);
 
         glDisableVertexAttribArray(0);
-
-        // Mettre à jour le VBO des particules
-        glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-        glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Particle), &particles[0], GL_STREAM_DRAW);
-
-        // 1rst attribute buffer : positions des particules
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-        glVertexAttribPointer(
-            1, // attribute
-            3, // size : x + y + z => 3
-            GL_FLOAT, // type
-            GL_FALSE, // normalized?
-            sizeof(Particle), // stride
-            (void*)0 // array buffer offset
-        );
-        // 2nd attribute buffer : tailles des particules
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-        glVertexAttribPointer(
-            3, // attribute
-            1, // size : taille => 1
-            GL_FLOAT, // type
-            GL_FALSE, // normalized?
-            sizeof(Particle), // stride
-            (void*)(3 * sizeof(float)) // array buffer offset (décalage de 3 float pour atteindre la taille)
-        );
-        // 3rd attribute buffer : couleurs des particules
-        glEnableVertexAttribArray(3);
-        glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-        glVertexAttribPointer(
-            4, // attribute
-            4, // size : r + g + b + a => 4
-            GL_FLOAT, // type
-            GL_FALSE, // normalized?
-            sizeof(Particle), // stride
-            (void*)(4 * sizeof(float)) // array buffer offset (décalage de 4 float pour atteindre la couleur)
-        );
-
-        // Draw the particles
-        glDrawArrays(GL_POINTS, 0, particles.size());
-
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(3);
-        glDisableVertexAttribArray(4);
 
         // Swap buffers
         glfwSwapBuffers(window);
@@ -417,6 +289,13 @@ int main( void )
     } // Check if the ESC key was pressed or the window was closed
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0 );
+
+    // Cleanup VBO and shader
+    // glDeleteBuffers(1, &vertexbuffer);
+    // glDeleteBuffers(1, &elementbuffer);
+    glDeleteBuffers(1, &particleBuffer);
+    glDeleteProgram(programID);
+    glDeleteVertexArrays(1, &VertexArrayID);
 
     // Close OpenGL window and terminate GLFW
     glfwTerminate();
@@ -439,24 +318,8 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         camera_position -= cameraSpeed * camera_target;
 
-    // Use controls.hpp functions to handle input
-
-    // camera strafe left and right
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        camera_position -= glm::normalize(glm::cross(camera_target, camera_up)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera_position += glm::normalize(glm::cross(camera_target, camera_up)) * cameraSpeed;
-
-    // camera move up and down
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera_position += camera_up * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camera_position -= camera_up * cameraSpeed;
-
-    // update camera target based on the new position
-    camera_target = glm::normalize(camera_target);
-
     //TODO add translations
+
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
