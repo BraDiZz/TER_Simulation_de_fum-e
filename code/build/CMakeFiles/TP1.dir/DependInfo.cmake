@@ -9,6 +9,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/e20230010831/Bureau/TER_BIB/code/TP1/TP1.cpp" "CMakeFiles/TP1.dir/TP1/TP1.cpp.o" "gcc" "CMakeFiles/TP1.dir/TP1/TP1.cpp.o.d"
+  "/home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_glfw.cpp" "CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o" "gcc" "CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o.d"
+  "/home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_opengl3.cpp" "CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o" "gcc" "CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o.d"
   "/home/e20230010831/Bureau/TER_BIB/code/common/controls.cpp" "CMakeFiles/TP1.dir/common/controls.cpp.o" "gcc" "CMakeFiles/TP1.dir/common/controls.cpp.o.d"
   "/home/e20230010831/Bureau/TER_BIB/code/common/objloader.cpp" "CMakeFiles/TP1.dir/common/objloader.cpp.o" "gcc" "CMakeFiles/TP1.dir/common/objloader.cpp.o.d"
   "/home/e20230010831/Bureau/TER_BIB/code/common/shader.cpp" "CMakeFiles/TP1.dir/common/shader.cpp.o" "gcc" "CMakeFiles/TP1.dir/common/shader.cpp.o.d"
@@ -20,6 +22,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
 set(CMAKE_TARGET_LINKED_INFO_FILES
   "/home/e20230010831/Bureau/TER_BIB/code/build/external/glfw-3.1.2/src/CMakeFiles/glfw.dir/DependInfo.cmake"
   "/home/e20230010831/Bureau/TER_BIB/code/build/external/CMakeFiles/GLEW_1130.dir/DependInfo.cmake"
+  "/home/e20230010831/Bureau/TER_BIB/code/build/CMakeFiles/imgui.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

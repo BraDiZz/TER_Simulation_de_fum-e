@@ -162,6 +162,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named imgui
+
+# Build rule for target.
+imgui: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 imgui
+.PHONY : imgui
+
+# fast build rule for target.
+imgui/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/build
+.PHONY : imgui/fast
+
+#=============================================================================
 # Target rules for targets named TP1
 
 # Build rule for target.
@@ -536,6 +549,180 @@ TP1/TP1.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/TP1/TP1.cpp.s
 .PHONY : TP1/TP1.cpp.s
 
+TP1/imgui/backends/imgui_impl_glfw.o: TP1/imgui/backends/imgui_impl_glfw.cpp.o
+.PHONY : TP1/imgui/backends/imgui_impl_glfw.o
+
+# target to build an object file
+TP1/imgui/backends/imgui_impl_glfw.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o
+.PHONY : TP1/imgui/backends/imgui_impl_glfw.cpp.o
+
+TP1/imgui/backends/imgui_impl_glfw.i: TP1/imgui/backends/imgui_impl_glfw.cpp.i
+.PHONY : TP1/imgui/backends/imgui_impl_glfw.i
+
+# target to preprocess a source file
+TP1/imgui/backends/imgui_impl_glfw.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.i
+.PHONY : TP1/imgui/backends/imgui_impl_glfw.cpp.i
+
+TP1/imgui/backends/imgui_impl_glfw.s: TP1/imgui/backends/imgui_impl_glfw.cpp.s
+.PHONY : TP1/imgui/backends/imgui_impl_glfw.s
+
+# target to generate assembly for a file
+TP1/imgui/backends/imgui_impl_glfw.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.s
+.PHONY : TP1/imgui/backends/imgui_impl_glfw.cpp.s
+
+TP1/imgui/backends/imgui_impl_opengl3.o: TP1/imgui/backends/imgui_impl_opengl3.cpp.o
+.PHONY : TP1/imgui/backends/imgui_impl_opengl3.o
+
+# target to build an object file
+TP1/imgui/backends/imgui_impl_opengl3.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o
+.PHONY : TP1/imgui/backends/imgui_impl_opengl3.cpp.o
+
+TP1/imgui/backends/imgui_impl_opengl3.i: TP1/imgui/backends/imgui_impl_opengl3.cpp.i
+.PHONY : TP1/imgui/backends/imgui_impl_opengl3.i
+
+# target to preprocess a source file
+TP1/imgui/backends/imgui_impl_opengl3.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.i
+.PHONY : TP1/imgui/backends/imgui_impl_opengl3.cpp.i
+
+TP1/imgui/backends/imgui_impl_opengl3.s: TP1/imgui/backends/imgui_impl_opengl3.cpp.s
+.PHONY : TP1/imgui/backends/imgui_impl_opengl3.s
+
+# target to generate assembly for a file
+TP1/imgui/backends/imgui_impl_opengl3.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.s
+.PHONY : TP1/imgui/backends/imgui_impl_opengl3.cpp.s
+
+TP1/imgui/src/imgui.o: TP1/imgui/src/imgui.cpp.o
+.PHONY : TP1/imgui/src/imgui.o
+
+# target to build an object file
+TP1/imgui/src/imgui.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui.cpp.o
+.PHONY : TP1/imgui/src/imgui.cpp.o
+
+TP1/imgui/src/imgui.i: TP1/imgui/src/imgui.cpp.i
+.PHONY : TP1/imgui/src/imgui.i
+
+# target to preprocess a source file
+TP1/imgui/src/imgui.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui.cpp.i
+.PHONY : TP1/imgui/src/imgui.cpp.i
+
+TP1/imgui/src/imgui.s: TP1/imgui/src/imgui.cpp.s
+.PHONY : TP1/imgui/src/imgui.s
+
+# target to generate assembly for a file
+TP1/imgui/src/imgui.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui.cpp.s
+.PHONY : TP1/imgui/src/imgui.cpp.s
+
+TP1/imgui/src/imgui_demo.o: TP1/imgui/src/imgui_demo.cpp.o
+.PHONY : TP1/imgui/src/imgui_demo.o
+
+# target to build an object file
+TP1/imgui/src/imgui_demo.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_demo.cpp.o
+.PHONY : TP1/imgui/src/imgui_demo.cpp.o
+
+TP1/imgui/src/imgui_demo.i: TP1/imgui/src/imgui_demo.cpp.i
+.PHONY : TP1/imgui/src/imgui_demo.i
+
+# target to preprocess a source file
+TP1/imgui/src/imgui_demo.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_demo.cpp.i
+.PHONY : TP1/imgui/src/imgui_demo.cpp.i
+
+TP1/imgui/src/imgui_demo.s: TP1/imgui/src/imgui_demo.cpp.s
+.PHONY : TP1/imgui/src/imgui_demo.s
+
+# target to generate assembly for a file
+TP1/imgui/src/imgui_demo.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_demo.cpp.s
+.PHONY : TP1/imgui/src/imgui_demo.cpp.s
+
+TP1/imgui/src/imgui_draw.o: TP1/imgui/src/imgui_draw.cpp.o
+.PHONY : TP1/imgui/src/imgui_draw.o
+
+# target to build an object file
+TP1/imgui/src/imgui_draw.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_draw.cpp.o
+.PHONY : TP1/imgui/src/imgui_draw.cpp.o
+
+TP1/imgui/src/imgui_draw.i: TP1/imgui/src/imgui_draw.cpp.i
+.PHONY : TP1/imgui/src/imgui_draw.i
+
+# target to preprocess a source file
+TP1/imgui/src/imgui_draw.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_draw.cpp.i
+.PHONY : TP1/imgui/src/imgui_draw.cpp.i
+
+TP1/imgui/src/imgui_draw.s: TP1/imgui/src/imgui_draw.cpp.s
+.PHONY : TP1/imgui/src/imgui_draw.s
+
+# target to generate assembly for a file
+TP1/imgui/src/imgui_draw.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_draw.cpp.s
+.PHONY : TP1/imgui/src/imgui_draw.cpp.s
+
+TP1/imgui/src/imgui_tables.o: TP1/imgui/src/imgui_tables.cpp.o
+.PHONY : TP1/imgui/src/imgui_tables.o
+
+# target to build an object file
+TP1/imgui/src/imgui_tables.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_tables.cpp.o
+.PHONY : TP1/imgui/src/imgui_tables.cpp.o
+
+TP1/imgui/src/imgui_tables.i: TP1/imgui/src/imgui_tables.cpp.i
+.PHONY : TP1/imgui/src/imgui_tables.i
+
+# target to preprocess a source file
+TP1/imgui/src/imgui_tables.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_tables.cpp.i
+.PHONY : TP1/imgui/src/imgui_tables.cpp.i
+
+TP1/imgui/src/imgui_tables.s: TP1/imgui/src/imgui_tables.cpp.s
+.PHONY : TP1/imgui/src/imgui_tables.s
+
+# target to generate assembly for a file
+TP1/imgui/src/imgui_tables.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_tables.cpp.s
+.PHONY : TP1/imgui/src/imgui_tables.cpp.s
+
+TP1/imgui/src/imgui_widgets.o: TP1/imgui/src/imgui_widgets.cpp.o
+.PHONY : TP1/imgui/src/imgui_widgets.o
+
+# target to build an object file
+TP1/imgui/src/imgui_widgets.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_widgets.cpp.o
+.PHONY : TP1/imgui/src/imgui_widgets.cpp.o
+
+TP1/imgui/src/imgui_widgets.i: TP1/imgui/src/imgui_widgets.cpp.i
+.PHONY : TP1/imgui/src/imgui_widgets.i
+
+# target to preprocess a source file
+TP1/imgui/src/imgui_widgets.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_widgets.cpp.i
+.PHONY : TP1/imgui/src/imgui_widgets.cpp.i
+
+TP1/imgui/src/imgui_widgets.s: TP1/imgui/src/imgui_widgets.cpp.s
+.PHONY : TP1/imgui/src/imgui_widgets.s
+
+# target to generate assembly for a file
+TP1/imgui/src/imgui_widgets.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/TP1/imgui/src/imgui_widgets.cpp.s
+.PHONY : TP1/imgui/src/imgui_widgets.cpp.s
+
 common/controls.o: common/controls.cpp.o
 .PHONY : common/controls.o
 
@@ -682,6 +869,7 @@ help:
 	@echo "... glfwinfo"
 	@echo "... heightmap"
 	@echo "... iconify"
+	@echo "... imgui"
 	@echo "... joysticks"
 	@echo "... monitors"
 	@echo "... msaa"
@@ -698,6 +886,27 @@ help:
 	@echo "... TP1/TP1.o"
 	@echo "... TP1/TP1.i"
 	@echo "... TP1/TP1.s"
+	@echo "... TP1/imgui/backends/imgui_impl_glfw.o"
+	@echo "... TP1/imgui/backends/imgui_impl_glfw.i"
+	@echo "... TP1/imgui/backends/imgui_impl_glfw.s"
+	@echo "... TP1/imgui/backends/imgui_impl_opengl3.o"
+	@echo "... TP1/imgui/backends/imgui_impl_opengl3.i"
+	@echo "... TP1/imgui/backends/imgui_impl_opengl3.s"
+	@echo "... TP1/imgui/src/imgui.o"
+	@echo "... TP1/imgui/src/imgui.i"
+	@echo "... TP1/imgui/src/imgui.s"
+	@echo "... TP1/imgui/src/imgui_demo.o"
+	@echo "... TP1/imgui/src/imgui_demo.i"
+	@echo "... TP1/imgui/src/imgui_demo.s"
+	@echo "... TP1/imgui/src/imgui_draw.o"
+	@echo "... TP1/imgui/src/imgui_draw.i"
+	@echo "... TP1/imgui/src/imgui_draw.s"
+	@echo "... TP1/imgui/src/imgui_tables.o"
+	@echo "... TP1/imgui/src/imgui_tables.i"
+	@echo "... TP1/imgui/src/imgui_tables.s"
+	@echo "... TP1/imgui/src/imgui_widgets.o"
+	@echo "... TP1/imgui/src/imgui_widgets.i"
+	@echo "... TP1/imgui/src/imgui_widgets.s"
 	@echo "... common/controls.o"
 	@echo "... common/controls.i"
 	@echo "... common/controls.s"

@@ -22,16 +22,16 @@ using namespace glm;
 #include <common/vboindexer.hpp>
 
 // include de imgui
-#include <TP1/imgui/imgui.h>
-#include <TP1/imgui/backends/imgui_impl_glfw.h>
-#include <TP1/imgui/backends/imgui_impl_opengl3.h>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
 
 void processInput(GLFWwindow *window);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1300;
+const unsigned int SCR_HEIGHT = 800;
 
 // camera
 glm::vec3 camera_position   = glm::vec3(0.0f, 0.0f,  6.0f);
@@ -51,16 +51,18 @@ float angle = 0.;
 float zoom = 1.;
 /*******************************************************************************/
 
+//size of the cube
+float side = 2;
+
 int idx(int i,int j,int nX,int nY){ // permet de connaitre l'indice dans un tableau
         return i*nY+j;
 }
 
-void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &indexed_vertices) {
+void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &indexed_vertices,float side) {
     // Supprime les données précédentes
     indices.clear();
     indexed_vertices.clear();
 
-    float side = 2;
     // Sommets du cube
     indexed_vertices.push_back(glm::vec3(-side, -side, -side)); // 0
     indexed_vertices.push_back(glm::vec3(side, -side, -side));  // 1
@@ -71,96 +73,47 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
     indexed_vertices.push_back(glm::vec3(side, side, side));    // 6
     indexed_vertices.push_back(glm::vec3(-side, side, side));   // 7
 
-    // Faces du cube avec des carrés
-    // Face arrière
+    //face 1 carré
+
     indices.push_back(0);
     indices.push_back(1);
-    indices.push_back(1);
-
 
     indices.push_back(1);
-    indices.push_back(2);
     indices.push_back(2);
 
     indices.push_back(2);
     indices.push_back(3);
-    indices.push_back(3);
 
     indices.push_back(3);
     indices.push_back(0);
-    indices.push_back(0);
 
-    //face bas
+    //face 2    
 
-    indices.push_back(0);
-    indices.push_back(1);
-    indices.push_back(1);
-
-    indices.push_back(1);
-    indices.push_back(5);
+    indices.push_back(4);
     indices.push_back(5);
 
     indices.push_back(5);
-    indices.push_back(4);
-    indices.push_back(4);
+    indices.push_back(6);
 
-    indices.push_back(4);
-    indices.push_back(0);
-    indices.push_back(0);
-
-    //face gauche
-
-    indices.push_back(0);
-    indices.push_back(3);
-    indices.push_back(3);
-
-    indices.push_back(3);
-    indices.push_back(7);
+    indices.push_back(6);
     indices.push_back(7);
 
     indices.push_back(7);
     indices.push_back(4);
+
+    //connecté les faces
+
+    indices.push_back(0);
     indices.push_back(4);
 
-    indices.push_back(4);
-    indices.push_back(0);
-    indices.push_back(0);
-
-    //face droite
-
     indices.push_back(1);
-    indices.push_back(2);
-    indices.push_back(2);
+    indices.push_back(5);
 
     indices.push_back(2);
     indices.push_back(6);
-    indices.push_back(6);
-
-    indices.push_back(6);
-    indices.push_back(5);
-    indices.push_back(5);
-
-    indices.push_back(5);
-    indices.push_back(1);
-    indices.push_back(1);
-
-    //face haut
-
-    indices.push_back(2);
-    indices.push_back(3);
-    indices.push_back(3);
 
     indices.push_back(3);
     indices.push_back(7);
-    indices.push_back(7);
-
-    indices.push_back(7);
-    indices.push_back(6);
-    indices.push_back(6);
-
-    indices.push_back(6);
-    indices.push_back(2);
-    indices.push_back(2);
 
 }
 
@@ -191,13 +144,6 @@ int main( void )
     }
     glfwMakeContextCurrent(window);
 
-    // Initialiser ImGui
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 130");
-
     // Initialize GLEW
     glewExperimental = true; // Needed for core profile
     if (glewInit() != GLEW_OK) {
@@ -206,6 +152,10 @@ int main( void )
         glfwTerminate();
         return -1;
     }
+
+    
+
+    
 
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -256,25 +206,21 @@ int main( void )
     std::vector<std::vector<unsigned short> > triangles;
     std::vector<glm::vec3> indexed_vertices; // sommets
 
-    setCube(indices,indexed_vertices);
+    //setCube(indices,indexed_vertices,side);
     
-
-    
-
-
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
-    GLuint vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
+    // GLuint vertexbuffer;
+    // glGenBuffers(1, &vertexbuffer);
+    // glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    // glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
 
-    // Generate a buffer for the indices as well
-    GLuint elementbuffer;
-    glGenBuffers(1, &elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
+    // // Generate a buffer for the indices as well
+    // GLuint elementbuffer;
+    // glGenBuffers(1, &elementbuffer);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
@@ -286,7 +232,55 @@ int main( void )
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
+    // Setup ImGui binding
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+
+    // Setup style
+    ImGui::StyleColorsDark();
+
     do{
+        // Poll and handle events
+        glfwPollEvents();
+
+        // Start the ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // Create your ImGui window here
+        ImGui::Begin("Hello, world!");
+        ImGui::Text("This is some useful text.");
+        ImGui::SliderFloat("Taille du cube", &side, 0.1f, 10.0f);
+        ImGui::End();
+
+        setCube(indices,indexed_vertices,side);
+
+        glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+
+        GLuint vertexbuffer;
+        glGenBuffers(1, &vertexbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+        glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
+
+        // Generate a buffer for the indices as well
+        GLuint elementbuffer;
+        glGenBuffers(1, &elementbuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
+
+        
+        
+        // Mettez à jour la fenêtre et les événements de votre application
+        // Exemple d'utilisation avec GLFW
+        //glfwPollEvents();
+        
+        // Conditions de sortie de la boucle principale
+        // if (/* condition de sortie */) {
+        //     break;
+        // }
 
         // Measure speed
         // per-frame time logic
@@ -376,7 +370,7 @@ int main( void )
 
         // Draw the triangles !
         glDrawElements(
-                    GL_TRIANGLES,      // mode
+                    GL_LINES,      // mode
                     indices.size(),    // count
                     GL_UNSIGNED_SHORT,   // type
                     (void*)0           // element array buffer offset
@@ -384,19 +378,36 @@ int main( void )
 
         glDisableVertexAttribArray(0);
 
+        // Rendering
+        ImGui::Render();
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        //glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
+        //glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        glDeleteBuffers(1, &vertexbuffer);
+        glDeleteBuffers(1, &elementbuffer);
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+
 
     } // Check if the ESC key was pressed or the window was closed
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0 );
 
     // Cleanup VBO and shader
-    glDeleteBuffers(1, &vertexbuffer);
-    glDeleteBuffers(1, &elementbuffer);
+    // glDeleteBuffers(1, &vertexbuffer);
+    // glDeleteBuffers(1, &elementbuffer);
     glDeleteProgram(programID);
     glDeleteVertexArrays(1, &VertexArrayID);
+
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     // Close OpenGL window and terminate GLFW
     glfwTerminate();

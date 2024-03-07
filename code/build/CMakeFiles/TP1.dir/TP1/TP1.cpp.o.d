@@ -282,8 +282,8 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: \
  /home/e20230010831/Bureau/TER_BIB/code/./common/shader.hpp \
  /home/e20230010831/Bureau/TER_BIB/code/./common/objloader.hpp \
  /home/e20230010831/Bureau/TER_BIB/code/./common/vboindexer.hpp \
- /home/e20230010831/Bureau/TER_BIB/code/./TP1/imgui/imgui.h \
- /home/e20230010831/Bureau/TER_BIB/code/./TP1/imgui/imconfig.h \
+ /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/include/imgui.h \
+ /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/include/imconfig.h \
  /usr/include/string.h /usr/include/strings.h \
- /home/e20230010831/Bureau/TER_BIB/code/./TP1/imgui/backends/imgui_impl_glfw.h \
- /home/e20230010831/Bureau/TER_BIB/code/./TP1/imgui/backends/imgui_impl_opengl3.h
+ /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_glfw.h \
+ /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_opengl3.h

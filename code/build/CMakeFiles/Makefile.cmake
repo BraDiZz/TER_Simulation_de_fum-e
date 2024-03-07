@@ -85,6 +85,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/imgui.dir/DependInfo.cmake"
   "CMakeFiles/TP1.dir/DependInfo.cmake"
   "external/CMakeFiles/GLEW_1130.dir/DependInfo.cmake"
   "external/glfw-3.1.2/CMakeFiles/uninstall.dir/DependInfo.cmake"

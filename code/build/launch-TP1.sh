@@ -1,4 +1,6 @@
 #!/bin/sh
+clear
+make
 bindir=$(pwd)
 cd /home/e20230010831/Bureau/TER_BIB/code/TP1/
 export 

@@ -153,6 +153,34 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TP1.dir/common/vboindexer.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/e20230010831/Bureau/TER_BIB/code/common/vboindexer.cpp -o CMakeFiles/TP1.dir/common/vboindexer.cpp.s
 
+CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o: CMakeFiles/TP1.dir/flags.make
+CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o: ../TP1/imgui/backends/imgui_impl_glfw.cpp
+CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o: CMakeFiles/TP1.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/e20230010831/Bureau/TER_BIB/code/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o -MF CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o.d -o CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o -c /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_glfw.cpp
+
+CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_glfw.cpp > CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.i
+
+CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_glfw.cpp -o CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.s
+
+CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o: CMakeFiles/TP1.dir/flags.make
+CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o: ../TP1/imgui/backends/imgui_impl_opengl3.cpp
+CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o: CMakeFiles/TP1.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/e20230010831/Bureau/TER_BIB/code/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o -MF CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o.d -o CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o -c /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_opengl3.cpp
+
+CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_opengl3.cpp > CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.i
+
+CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_opengl3.cpp -o CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.s
+
 # Object files for target TP1
 TP1_OBJECTS = \
 "CMakeFiles/TP1.dir/TP1/TP1.cpp.o" \
@@ -160,7 +188,9 @@ TP1_OBJECTS = \
 "CMakeFiles/TP1.dir/common/controls.cpp.o" \
 "CMakeFiles/TP1.dir/common/texture.cpp.o" \
 "CMakeFiles/TP1.dir/common/objloader.cpp.o" \
-"CMakeFiles/TP1.dir/common/vboindexer.cpp.o"
+"CMakeFiles/TP1.dir/common/vboindexer.cpp.o" \
+"CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o" \
+"CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o"
 
 # External object files for target TP1
 TP1_EXTERNAL_OBJECTS =
@@ -171,11 +201,14 @@ TP1: CMakeFiles/TP1.dir/common/controls.cpp.o
 TP1: CMakeFiles/TP1.dir/common/texture.cpp.o
 TP1: CMakeFiles/TP1.dir/common/objloader.cpp.o
 TP1: CMakeFiles/TP1.dir/common/vboindexer.cpp.o
+TP1: CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o
+TP1: CMakeFiles/TP1.dir/TP1/imgui/backends/imgui_impl_opengl3.cpp.o
 TP1: CMakeFiles/TP1.dir/build.make
 TP1: /usr/lib/x86_64-linux-gnu/libGL.so
 TP1: /usr/lib/x86_64-linux-gnu/libGLU.so
 TP1: external/glfw-3.1.2/src/libglfw3.a
 TP1: external/libGLEW_1130.a
+TP1: libimgui.a
 TP1: /usr/lib/x86_64-linux-gnu/librt.a
 TP1: /usr/lib/x86_64-linux-gnu/libm.so
 TP1: /usr/lib/x86_64-linux-gnu/libX11.so
@@ -195,7 +228,7 @@ TP1: /usr/lib/x86_64-linux-gnu/libXcursor.so
 TP1: /usr/lib/x86_64-linux-gnu/libGL.so
 TP1: /usr/lib/x86_64-linux-gnu/libGLU.so
 TP1: CMakeFiles/TP1.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/e20230010831/Bureau/TER_BIB/code/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable TP1"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/e20230010831/Bureau/TER_BIB/code/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable TP1"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/TP1.dir/link.txt --verbose=$(VERBOSE)
 	/usr/bin/cmake -E copy /home/e20230010831/Bureau/TER_BIB/code/build/./TP1 /home/e20230010831/Bureau/TER_BIB/code/TP1/
 
