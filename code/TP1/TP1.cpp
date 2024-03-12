@@ -1,5 +1,6 @@
 // Include standard headers
 #include <stdio.h>
+#include <cstdlib>
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
@@ -51,14 +52,48 @@ float angle = 0.;
 float zoom = 1.;
 /*******************************************************************************/
 
-//size of the cube
-float side = 2;
+//variable du panneau de contrôle imgui
+float side = 2; //taille du cube
+float windDirection = 0; //direction du vent, angle?
+float windStrength = 0; //force du vent
+float gravity = 0;// force de la gravité
+float lifeTime = 10; // durée de vie d'une particule en seconde
+float nbParticule;// nombre de particule
+float cycle = 0.001; // cycle d'apparition des particules
+bool isChecked = false;
+const char *meshAvailable[] = { "Smoke","Mesh1", "Mesh2", "Mesh3"};
+int currentMesh = 0;
+
 
 int idx(int i,int j,int nX,int nY){ // permet de connaitre l'indice dans un tableau
         return i*nY+j;
 }
 
-void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &indexed_vertices,float side) {
+void DrawWindArrow(float windStrength, float windDirection, ImVec4 smokeColor)
+{
+    // Définir la longueur de la flèche
+    float arrowLength = 20.0f;
+    float sizeA=10.f; // permet de réduire la taille de la flèche
+    float sizeS=50.f; // taille du carré
+    // Calculer les composantes x et y de la flèche en fonction de la direction du vent
+    float arrowX = cosf(windDirection) * windStrength/sizeA * arrowLength;
+    float arrowY = sinf(windDirection) * windStrength/sizeA * arrowLength;
+    float sizeT = windStrength/2+10;
+    
+
+    // Dessiner la flèche
+    ImVec2 startPos = ImGui::GetCursorScreenPos();
+    startPos.x += 100; // Décalage de 10 pixels vers la droite
+    startPos.y += 100;
+    
+    ImVec2 endPos(startPos.x + arrowX, startPos.y - arrowY); // Utiliser arrowY avec un signe négatif pour inverser la direction de la flèche
+    ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(startPos.x - sizeS*2, startPos.y - sizeS*2), ImVec2(startPos.x + sizeS * 2, startPos.y + sizeS * 2), IM_COL32(0,0,0,255));
+    
+    ImGui::GetWindowDrawList()->AddLine(startPos, endPos, IM_COL32(smokeColor.x*255, smokeColor.y*255, smokeColor.z*255, smokeColor.w*255), 2.0f);
+    ImGui::GetWindowDrawList()->AddTriangleFilled(ImVec2(endPos.x,endPos.y + sizeT * 0.5f), ImVec2(endPos.x, endPos.y - sizeT * 0.5f), ImVec2(endPos.x + sizeT * 0.5f, endPos.y), IM_COL32(smokeColor.x*255, smokeColor.y*255, smokeColor.z*255, smokeColor.w*255)); // Ajuster correctement les coordonnées pour le triangle
+}
+
+void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &indexed_vertices,float side,int create) {
     // Supprime les données précédentes
     indices.clear();
     indexed_vertices.clear();
@@ -114,6 +149,11 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
 
     indices.push_back(3);
     indices.push_back(7);
+
+    if(create==0){
+        indices.clear();
+        indexed_vertices.clear();
+    }
 
 }
 
@@ -249,14 +289,83 @@ int main( void )
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.8f, 0.0f, 0.8f, 0.75f)); // changer la couleur du fond de la fenêtre imgui
         // Create your ImGui window here
-        ImGui::Begin("Hello, world!");
-        ImGui::Text("This is some useful text.");
-        ImGui::SliderFloat("Taille du cube", &side, 0.1f, 10.0f);
+        ImGui::Begin("Panneau de contrôle");
+
+        
+        
+        ImGui::SliderFloat("Taille du cube", &side, 0.01f, 4.f);
+
+        // Sélecteur de couleur RGB
+        static float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f }; // Initialiser à blanc
+        ImGui::ColorEdit4("Color", color);
+
+        ImGui::SliderFloat("Angle du vent", &windDirection, 0.0f, 360.0f);
+        ImGui::SliderFloat("Force du vent", &windStrength, 0.0f, 40.0f,"%1.f");
+        ImGui::SliderFloat("Force de la gravité", &gravity, 0.0f, 10.0f);
+        float arrowDirection = fmod(windDirection, 360.0f) * (3.14159265358979323846f / 180.0f); // Convertir en radians
+        // Generate samples and plot them
+        float samples[100];
+        // for (int n = 0; n < 100; n++)
+        //     samples[n] = sinf(n * 0.2f + ImGui::GetTime() * windStrength);
+        // Dans la boucle principale de votre programme :
+        // Calculer la force du vent
+        // Dessiner la flèche représentant la direction du vent
+        
+
+
+        //ImGui::PlotLines("Samples", samples, 100);
+        // Utiliser la couleur sélectionnée pour dessiner le cube
+        ImVec4 smokeColor = ImVec4(color[0], color[1], color[2], 1.0f);
+        DrawWindArrow(windStrength, arrowDirection,smokeColor);
+        ImGui::Dummy(ImVec2(0.0f, 200.0f)); // Ajouter un espace vertical
+        ImGui::SliderFloat("Nombre de particule", &nbParticule, 0.0f, 100000.0f,"%2.f"); // à déterminer
+        ImGui::SliderFloat("Vitesse de cycle en ms", &cycle, 1.0f, 1000.0f); // à déterminer
+        ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 10.0f); // à déterminer
+
+
+        if (ImGui::BeginCombo("Mesh disponible", meshAvailable[currentMesh]))
+            {
+                for (int i = 0; i < IM_ARRAYSIZE(meshAvailable); i++)
+                {
+                    bool isSelected = (currentMesh== i);
+                    if (ImGui::Selectable(meshAvailable[i], isSelected))
+                        currentMesh = i;
+
+                    // Si l'option est sélectionnée, définissez le focus pour que la liste déroulante se ferme immédiatement
+                    if (isSelected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+
+        ImGui::Checkbox("Montrer le cube", &isChecked);
+
+        if (isChecked)
+        {
+            setCube(indices,indexed_vertices,side,1);
+        }
+        else
+        {
+            setCube(indices,indexed_vertices,side,0);
+        }
+
+        // Créer un bouton ImGui
+        if (ImGui::Button("Lancer la simulation"))
+        {
+            printf("Le bouton a été cliqué !\n");
+        }
+
+
+
+        
+
+        ImGui::PopStyleColor(); // Restaurer la couleur de fond par défaut après la fin de la fenêtre important!!!!
+
         ImGui::End();
 
-        setCube(indices,indexed_vertices,side);
 
         glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
