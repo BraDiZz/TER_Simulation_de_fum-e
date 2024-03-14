@@ -1,4 +1,4 @@
-# Install script for directory: /home/e20230010831/Bureau/TER_BIB/code/external/glfw-3.1.2/examples
+# Install script for directory: /mnt/c/Users/33652/Desktop/TER_BIB/code/external/glfw-3.1.2/examples
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

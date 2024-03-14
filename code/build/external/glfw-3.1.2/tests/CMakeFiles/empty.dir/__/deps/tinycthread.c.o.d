@@ -1,7 +1,7 @@
 external/glfw-3.1.2/tests/CMakeFiles/empty.dir/__/deps/tinycthread.c.o: \
- /home/e20230010831/Bureau/TER_BIB/code/external/glfw-3.1.2/deps/tinycthread.c \
+ /mnt/c/Users/33652/Desktop/TER_BIB/code/external/glfw-3.1.2/deps/tinycthread.c \
  /usr/include/stdc-predef.h \
- /home/e20230010831/Bureau/TER_BIB/code/external/glfw-3.1.2/deps/tinycthread.h \
+ /mnt/c/Users/33652/Desktop/TER_BIB/code/external/glfw-3.1.2/deps/tinycthread.h \
  /usr/include/time.h /usr/include/features.h \
  /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \

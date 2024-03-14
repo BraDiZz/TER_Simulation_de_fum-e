@@ -1,19 +1,19 @@
 #!/bin/sh
-clear
-make
+clear 
+make -j 12
 bindir=$(pwd)
-cd /home/e20230010831/Bureau/TER_BIB/code/TP1/
+cd /mnt/c/Users/33652/Desktop/TER_BIB/code/TP1/
 export 
 
 if test "x$1" = "x--debugger"; then
 	shift
-	if test "xYES" = "xYES"; then
+	if test "x" = "xYES"; then
 		echo "r  " > $bindir/gdbscript
 		echo "bt" >> $bindir/gdbscript
-		/usr/bin/gdb -batch -command=$bindir/gdbscript --return-child-result /home/e20230010831/Bureau/TER_BIB/code/build/TP1 
+		GDB_COMMAND-NOTFOUND -batch -command=$bindir/gdbscript  /mnt/c/Users/33652/Desktop/TER_BIB/code/build/TP1 
 	else
-		"/home/e20230010831/Bureau/TER_BIB/code/build/TP1"  
+		"/mnt/c/Users/33652/Desktop/TER_BIB/code/build/TP1"  
 	fi
 else
-	"/home/e20230010831/Bureau/TER_BIB/code/build/TP1"  
+	"/mnt/c/Users/33652/Desktop/TER_BIB/code/build/TP1"  
 fi

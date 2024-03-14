@@ -1,10 +1,12 @@
 #version 330 core
 
 // Ouput data
-out vec3 color;
+out vec4 color;
+
+uniform vec3 c;
 
 void main(){
 
-        color =vec3(0.2, 0.2,0.4);
+        color =vec4(c,1.);
 
 }

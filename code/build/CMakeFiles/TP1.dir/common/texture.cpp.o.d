@@ -1,5 +1,5 @@
 CMakeFiles/TP1.dir/common/texture.cpp.o: \
- /home/e20230010831/Bureau/TER_BIB/code/common/texture.cpp \
+ /mnt/c/Users/33652/Desktop/TER_BIB/code/common/texture.cpp \
  /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -58,9 +58,9 @@ CMakeFiles/TP1.dir/common/texture.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
  /usr/include/c++/11/bits/std_abs.h /usr/include/string.h \
  /usr/include/strings.h \
- /home/e20230010831/Bureau/TER_BIB/code/external/glew-1.13.0/include/GL/glew.h \
+ /mnt/c/Users/33652/Desktop/TER_BIB/code/external/glew-1.13.0/include/GL/glew.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h /usr/include/GL/glu.h \
  /usr/include/GL/gl.h \
- /home/e20230010831/Bureau/TER_BIB/code/external/glfw-3.1.2/include/GLFW/glfw3.h
+ /mnt/c/Users/33652/Desktop/TER_BIB/code/external/glfw-3.1.2/include/GLFW/glfw3.h

@@ -11,6 +11,8 @@
 #include <GLFW/glfw3.h>
 GLFWwindow* window;
 
+using namespace std;
+
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -39,7 +41,6 @@ glm::vec3 camera_position   = glm::vec3(0.0f, 0.0f,  6.0f);
 glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 camera_up    = glm::vec3(0.0f, 1.0f,  0.0f);
 
-glm::mat4 View;
 glm::mat4 CamNavigue; // cam 0
 glm::mat4 CamOrbital; // cam 1
 
@@ -53,14 +54,14 @@ float zoom = 1.;
 /*******************************************************************************/
 
 //variable du panneau de contrôle imgui
-float side = 2; //taille du cube
+float side = 1.7; //taille du cube
 float windDirection = 0; //direction du vent, angle?
 float windStrength = 0; //force du vent
 float gravity = 0;// force de la gravité
-float lifeTime = 10; // durée de vie d'une particule en seconde
-float nbParticule;// nombre de particule
+float lifeTime = 1.f; // durée de vie d'une particule en seconde
+float nbParticule = 100.f;// nombre de particule
 float cycle = 0.001; // cycle d'apparition des particules
-bool isChecked = false;
+bool isChecked = true;
 const char *meshAvailable[] = { "Smoke","Mesh1", "Mesh2", "Mesh3"};
 int currentMesh = 0;
 
@@ -157,6 +158,51 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
 
 }
 
+
+vec3 generate_deplacement(){
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(-2.0f, 2.0f);
+
+    std::uniform_real_distribution<float> dis2(1.0f, 10.0f);
+    float y=0.001f*dis2(gen);
+    float z=0.f;
+    float x=dis(gen)*0.001;
+    while(x==0){
+        x=dis(gen)*0.001;
+    }
+
+    return vec3(x,y,z);
+}
+
+vec3 generate_position(){
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(-10.0f, 10.0f);
+
+    float y=-2.;
+    float x=dis(gen)*0.01;
+    float z=dis(gen)*0.01;
+    return vec3(x,y,z);
+}
+
+float lifeglobal = lifeTime*200.f;
+
+struct Particle{
+    glm::vec3 position;
+    float life = lifeglobal;
+    vec3 deplacement;
+};
+
+
+bool generate=false;
+
+
+
+glm::mat4 View;
+glm::mat4 Model;
+glm::mat4 Projection;
+
 int main( void )
 {
     // Initialise GLFW
@@ -207,7 +253,7 @@ int main( void )
     glfwSetCursorPos(window, SCR_WIDTH/2, SCR_HEIGHT/2);
 
     // Dark blue background
-    glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -224,23 +270,20 @@ int main( void )
     // Create and compile our GLSL program from the shaders
     GLuint programID = LoadShaders( "vertex_shader.glsl", "fragment_shader.glsl" );
 
-    /*****************TODO***********************/
-    // Get a handle for our "Model View Projection" matrices uniforms
-
-    /*********************int idx(int i,int j,int nX,int nY){ // permet de connaitre l'indice dans un tableau
-        if(i==-1) i = nX-1;
-        if(i==nX) i=0;
-        if(j==-1) j = nY-1;
-        if(j==nY) j=0;
-        return i*nY+j;
-    }*******************/
-    
 
     //Chargement du fichier de maillage
     //std::string filename("chair.off");
     //loadOFF(filename, indexed_vertices, indices, triangles );
 
     // Load it into a VBO
+
+    int M = glGetUniformLocation(programID,"ModelMatrix");
+    int V = glGetUniformLocation(programID, "ViewMatrix");
+    int P = glGetUniformLocation(programID, "ProjectionMatrix");
+
+    Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
+    glUniformMatrix4fv(P, 1, GL_FALSE, &Projection[0][0]);
 
     std::vector<unsigned short> indices; //Triangles concaténés dans une liste
     std::vector<std::vector<unsigned short> > triangles;
@@ -251,26 +294,26 @@ int main( void )
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
-    // GLuint vertexbuffer;
-    // glGenBuffers(1, &vertexbuffer);
-    // glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    // glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
+    
+    GLuint vertexbuffer;
+    GLuint elementbuffer;
+    GLuint particleBuffer;
+    
 
-    // // Generate a buffer for the indices as well
-    // GLuint elementbuffer;
-    // glGenBuffers(1, &elementbuffer);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
+    std::vector<Particle> particles;
 
-    // Get a handle for our "LightPosition" uniform
+    
+    
+
     glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
-
-
+        
+    
 
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
+
 
     // Setup ImGui binding
     ImGui::CreateContext();
@@ -282,6 +325,20 @@ int main( void )
     ImGui::StyleColorsDark();
 
     do{
+
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+         processInput(window);
+
+
+        // Clear the screen
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Use our shader
+        glUseProgram(programID);
+
         // Poll and handle events
         glfwPollEvents();
 
@@ -320,9 +377,9 @@ int main( void )
         ImVec4 smokeColor = ImVec4(color[0], color[1], color[2], 1.0f);
         DrawWindArrow(windStrength, arrowDirection,smokeColor);
         ImGui::Dummy(ImVec2(0.0f, 200.0f)); // Ajouter un espace vertical
-        ImGui::SliderFloat("Nombre de particule", &nbParticule, 0.0f, 100000.0f,"%2.f"); // à déterminer
+        ImGui::SliderFloat("Nombre de particule", &nbParticule, 100.0f, 100000.0f,"%2.f"); // à déterminer
         ImGui::SliderFloat("Vitesse de cycle en ms", &cycle, 1.0f, 1000.0f); // à déterminer
-        ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 10.0f); // à déterminer
+        ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 20.0f); // à déterminer
 
 
         if (ImGui::BeginCombo("Mesh disponible", meshAvailable[currentMesh]))
@@ -352,11 +409,23 @@ int main( void )
             setCube(indices,indexed_vertices,side,0);
         }
 
+        
+
         // Créer un bouton ImGui
         if (ImGui::Button("Lancer la simulation"))
         {
-            printf("Le bouton a été cliqué !\n");
+            //printf("Le bouton a été cliqué !\n");
+            generate=!generate;
         }
+        if(generate){
+            ImGui::Text("en cours"); 
+        }
+        else{
+            ImGui::Text("arretez");
+        }
+        
+
+        ImGui::Text("nbParticule: %d", particles.size());
 
 
 
@@ -367,103 +436,98 @@ int main( void )
         ImGui::End();
 
 
-        glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-
-        GLuint vertexbuffer;
         glGenBuffers(1, &vertexbuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
 
         // Generate a buffer for the indices as well
-        GLuint elementbuffer;
+        
         glGenBuffers(1, &elementbuffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
 
+
+        //genere de nouvelle particule tant que generate vaut true
+        
+        std::vector<Particle> acc_stock;
+
+        if(generate){
+            for(int i=0;i<nbParticule;i++){
+                Particle acc;
+                acc.position = generate_position();
+                acc.deplacement=generate_deplacement();
+                acc_stock.push_back(acc);
+            }
+        }
+        
+    
+
+        
+        for (int i = 0; i < particles.size(); ++i) {
+            particles[i].life=particles[i].life-1;
+            if(particles[i].life>0){
+                particles[i].position += particles[i].deplacement; 
+                acc_stock.push_back(particles[i]);
+            }else{
+                
+                particles[i].position=generate_position();
+                particles[i].life=lifeglobal;
+                acc_stock.push_back(particles[i]);
+            }
+        }
+
+        particles.clear();
+        particles.resize(acc_stock.size());
+        for(int i=0;i<acc_stock.size();i++){
+            particles[i]=acc_stock[i];
+        }
         
         
-        // Mettez à jour la fenêtre et les événements de votre application
-        // Exemple d'utilisation avec GLFW
-        //glfwPollEvents();
+
         
-        // Conditions de sortie de la boucle principale
-        // if (/* condition de sortie */) {
-        //     break;
-        // }
+        
+       
+         
+        
+        glGenBuffers(2, &particleBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
+        glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
 
-        // Measure speed
-        // per-frame time logic
-        // --------------------
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
-        // input
-        // -----
-        processInput(window);
+       // Mettre à jour les données des particules
+        glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
+        //glBufferSubData(GL_ARRAY_BUFFER, 0, numParticles * sizeof(glm::vec3), &particles[0].position);
+        glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Particle), particles.data(), GL_DYNAMIC_DRAW);
 
 
-        // Clear the screen
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Use our shader
-        glUseProgram(programID);
+         
 
 
-        /*****************TODO***********************/
-        // Model matrix : an identity matrix (model will be at the origin) then change
+        Model = glm::mat4(1.f);
 
 
-        // View matrix : camera/view transformation lookat() utiliser camera_position camera_target camera_up
+         View = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
 
-        // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+        Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
 
         // Send our transformation to the currently bound shader,
-        // in the "Model View Projection" to the shader uniforms
+        // in the "Model View Projection" to the shader uniforms.
         
-        //camera view 
-        int TMID = glGetUniformLocation(programID, "ViewMatrix");
-        View = glm::lookAt(camera_position,camera_target,camera_up);
-        glUniformMatrix4fv(TMID, 1, GL_FALSE, &View[0][0]);
+        glUniformMatrix4fv(M, 1, GL_FALSE, &Model[0][0]);
+        glUniformMatrix4fv(V, 1, GL_FALSE, &View[0][0]);
+        glUniformMatrix4fv(P, 1, GL_FALSE, &Projection[0][0]);
 
-        glm::mat4 ProjectionMatrix = glm::perspective(45.0f,(float)SCR_WIDTH/(float)SCR_HEIGHT,0.1f,100.0f);
-        int Proj = glGetUniformLocation(programID, "ProjectionMatrix");
-        
-        glUniformMatrix4fv(Proj, 1, GL_FALSE, &ProjectionMatrix[0][0]);
 
-        //std::cout<<"proj = "<<CamNavigue<<std::endl; //<<CamNavigue[1]<<CamNavigue[2]<<CamNavigue[4]<<std::endl;
-
-        // glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.f);
-        // glm::mat4 ViewTranslate = glm::translate(
-        //     glm::mat4(1.0f),
-        //     glm::vec3(0.0f, 0.0f, -Translate)
-        // );
-        // glm::mat4 ViewRotateX = glm::rotate(
-        //     ViewTranslate,
-        //     Rotate.y,
-        //     glm::vec3(-1.0f, 0.0f, 0.0f)
-        // );
-        // glm::mat4 View = glm::rotate(
-        //     ViewRotateX,
-        //     Rotate.x,
-        //     glm::vec3(0.0f, 1.0f, 0.0f)
-        // );
-        // glm::mat4 Model = glm::scale(
-        //     glm::mat4(1.0f),
-        //     glm::vec3(0.5f)
-        // );
-        // glm::mat4 MVP = Projection * View * Model;
-        // glUniformMatrix4fv(LocationMVP, 1, GL_FALSE, glm::value_ptr(MVP));
-    
         
 
         /****************************************/
+        
 
-
-
+        glUniform3f(glGetUniformLocation(programID,"c"),1.,1.,1.);
 
         // 1rst attribute buffer : vertices
         glEnableVertexAttribArray(0);
+
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glVertexAttribPointer(
                     0,                  // attribute
@@ -487,6 +551,26 @@ int main( void )
 
         glDisableVertexAttribArray(0);
 
+
+        glUniform3f(glGetUniformLocation(programID,"c"),smokeColor.x,smokeColor.y,smokeColor.z);
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
+        glVertexAttribPointer(
+            0,             // attribute
+            3,             // size (vec3)
+            GL_FLOAT,      // type
+            GL_FALSE,      // normalized?
+            0,             // stride
+            (void*)0       // array buffer offset
+        );
+
+        // Draw the particle
+        glDrawArrays(GL_POINTS, 0, particles.size());
+        //glDrawArrays(GL_POINTS, 0, 1);
+
+        glDisableVertexAttribArray(0);
+
+
         // Rendering
         ImGui::Render();
         int display_w, display_h;
@@ -495,8 +579,7 @@ int main( void )
         //glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
         //glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glDeleteBuffers(1, &vertexbuffer);
-        glDeleteBuffers(1, &elementbuffer);
+        
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -508,10 +591,13 @@ int main( void )
            glfwWindowShouldClose(window) == 0 );
 
     // Cleanup VBO and shader
-    // glDeleteBuffers(1, &vertexbuffer);
-    // glDeleteBuffers(1, &elementbuffer);
+    glDeleteBuffers(1, &vertexbuffer);
+    glDeleteBuffers(1, &elementbuffer);
+    glDeleteBuffers(2, &particleBuffer);
+
     glDeleteProgram(programID);
     glDeleteVertexArrays(1, &VertexArrayID);
+
 
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
@@ -540,6 +626,7 @@ void processInput(GLFWwindow *window)
         camera_position -= cameraSpeed * camera_target;
 
 
+    
     
 
 
