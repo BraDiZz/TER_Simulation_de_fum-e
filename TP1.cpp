@@ -58,7 +58,7 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
     indices.clear();
     indexed_vertices.clear();
 
-    float side = 2;
+    float side = 0.2;
     // Sommets du cube
     indexed_vertices.push_back(glm::vec3(-side, -side, -side)); // 0
     indexed_vertices.push_back(glm::vec3(side, -side, -side));  // 1
@@ -70,53 +70,23 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
     indexed_vertices.push_back(glm::vec3(-side, side, side));   // 7
 
     //face 1 carré
-
-    indices.push_back(0);
-    indices.push_back(1);
-
-    indices.push_back(1);
-    indices.push_back(2);
-
-    indices.push_back(2);
-    indices.push_back(3);
-
-    indices.push_back(3);
-    indices.push_back(0);
+    indices.push_back(0);indices.push_back(1);indices.push_back(1);indices.push_back(2);
+    indices.push_back(2);indices.push_back(3);indices.push_back(3);indices.push_back(0);
 
     //face 2    
-
-    indices.push_back(4);
-    indices.push_back(5);
-
-    indices.push_back(5);
-    indices.push_back(6);
-
-    indices.push_back(6);
-    indices.push_back(7);
-
-    indices.push_back(7);
-    indices.push_back(4);
+    indices.push_back(4);indices.push_back(5);indices.push_back(5);indices.push_back(6);
+    indices.push_back(6);indices.push_back(7);indices.push_back(7);indices.push_back(4);
 
     //connecté les faces
-
-    indices.push_back(0);
-    indices.push_back(4);
-
-    indices.push_back(1);
-    indices.push_back(5);
-
-    indices.push_back(2);
-    indices.push_back(6);
-
-    indices.push_back(3);
-    indices.push_back(7);
+    indices.push_back(0);indices.push_back(4);indices.push_back(1);indices.push_back(5);
+    indices.push_back(2);indices.push_back(6);indices.push_back(3);indices.push_back(7);
 
 }
 
 
 
 // Nombre de particules
-const int numParticles = 100;
+const int numParticles = 10000;
 /*******************************************************************************/
 
 glm::mat4 View;
@@ -176,7 +146,7 @@ int main( void )
     glDepthFunc(GL_LESS);
 
     // Cull triangles which normal is not towards the camera
-    //glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -201,20 +171,22 @@ int main( void )
     std::vector<std::vector<unsigned short> > triangles;
     std::vector<glm::vec3> indexed_vertices;
 
-    setCube(indices,indexed_vertices);
+    // setCube(indices,indexed_vertices);
 
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
-    GLuint vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    setCube(indices,indexed_vertices);
+
+    GLuint cubeVertexBuffer;
+    glGenBuffers(1, &cubeVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
 
     // Generate a buffer for the indices as well
-    GLuint elementbuffer;
-    glGenBuffers(1, &elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+    GLuint cubeElementBuffer;
+    glGenBuffers(1, &cubeElementBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeElementBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
 
 
@@ -230,7 +202,7 @@ int main( void )
 
     // Generate a buffer for the particle position
     GLuint particleBuffer;
-    glGenBuffers(1, &particleBuffer);
+    glGenBuffers(2, &particleBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
     glBufferData(GL_ARRAY_BUFFER, numParticles * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
 
@@ -250,33 +222,8 @@ int main( void )
     // Mettez à jour la position de la caméra pour centrer la particule
     camera_position = glm::vec3(0.f, 0.f, 0.f) - camera_direction * distance_from_particle;
 
-    // 1rst attribute buffer : vertices
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-        glVertexAttribPointer(
-                    0,                  // attribute
-                    3,                  // size
-                    GL_FLOAT,           // type
-                    GL_FALSE,           // normalized?
-                    0,                  // stride
-                    (void*)0            // array buffer offset
-                    );
 
-        // Index buffer
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-
-        // Draw the triangles !
-        glDrawElements(
-                    GL_LINES,      // mode
-                    indices.size(),    // count
-                    GL_UNSIGNED_SHORT,   // type
-                    (void*)0           // element array buffer offset
-                    );
-
-        glDisableVertexAttribArray(0);
-
-
-do {
+    do {
         // Measure speed
         // per-frame time logic
         // --------------------
@@ -295,50 +242,7 @@ do {
         // Use our shader
         glUseProgram(programID);
 
-        // for (int i = 0; i < numParticles; ++i) {
-        //     particles[i].position += glm::vec3(0.1f, 0.1f, 0.0f) * deltaTime; // Exemple : translation vers la droite
-        // }
-
         const float pi = glm::pi<float>();
-
-
-        // const float translationRange = 5.0f; // Adjust the range as needed
-
-        // for (int i = 0; i < numParticles; ++i) {
-        //     // Set the initial position to the origin
-        //     particles[i].position = glm::vec3(0.0f, 0.0f, 0.0f);
-
-        //     // Generate random translations within the predefined range
-        //     float translateX = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 2.0f * translationRange;
-        //     float translateY = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 2.0f * translationRange;
-        //     float translateZ = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 2.0f * translationRange;
-
-        //     // Update the position based on random translations and delta time
-        //     particles[i].position += glm::vec3(translateX, translateY, translateZ) * deltaTime;
-        // }
-
-        // for (int i = 0; i < numParticles; ++i) {
-        // // Générez des positions initiales aléatoires entre -0.5 et 0.5
-        //         float initialX = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 1.0f; // Adjust the scale as needed
-        //         float initialY = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 1.0f;
-        //         float initialZ = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 1.0f;
-
-        //         particles[i].position = glm::vec3(initialX, initialY, initialZ);
-
-        //         // Générez un angle aléatoire sur une sphère
-        //         float theta = static_cast<float>(rand()) / RAND_MAX * 2.0f * pi;
-        //         float phi = static_cast<float>(rand()) / RAND_MAX * pi;
-
-        //     // Calculez les coordonnées sphériques en coordonnées cartésiennes
-        //         float x = std::sin(phi) * std::cos(theta);
-        //         float y = std::sin(phi) * std::sin(theta);
-        //         float z = std::cos(phi);
-
-        //         glm::vec3 randomDirection(x, y, z);
-
-        //     // Mise à jour de la position en fonction de la direction et du delta time
-        //         particles[i].position += randomDirection * deltaTime;
-        //     }
 
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -348,6 +252,7 @@ do {
             glm::vec3 randPos(dis(gen), 0.0005f, 0.f);
             particles[i].position += randPos; 
         }
+
 
         // Mettez à jour le VBO avec les nouvelles positions des particules
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
@@ -361,7 +266,7 @@ do {
         // Model = glm::rotate(Model,angle,glm::vec3(0.f,1.f,0.f));
 
         // View matrix : camera/view transformation lookat() utiliser camera_position camera_target camera_up
-         View = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
+        View = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
 
         // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
         Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -374,16 +279,27 @@ do {
         glUniformMatrix4fv(ViewMatrix, 1, GL_FALSE, &View[0][0]);
         glUniformMatrix4fv(ProjectionMatrix, 1, GL_FALSE, &Projection[0][0]);
 
-        // Model matrix : an identity matrix (model will be at the origin) then change
-
-        // View matrix : camera/view transformation lookat() utiliser camera_position camera_target camera_up
-
-        // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-
-        // Send our transformation to the currently bound shader,
-        // in the "Model View Projection" to the shader uniforms
-
         /****************************************/
+
+        glEnableVertexAttribArray(0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, cubeVertexBuffer);
+        glVertexAttribPointer(
+            0,             // attribute
+            3,             // size (vec3)
+            GL_FLOAT,      // type
+            GL_FALSE,      // normalized?
+            0,             // stride
+            (void*)0       // array buffer offset
+        );
+
+        // Draw the cube
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeElementBuffer);
+        glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_SHORT, (void*)0);
+                
+
+       glDisableVertexAttribArray(0);
+
 
 
         // Set the particle position attribute
@@ -404,8 +320,6 @@ do {
 
         glDisableVertexAttribArray(0);
 
-
-
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -415,9 +329,9 @@ do {
            glfwWindowShouldClose(window) == 0 );
 
     // Cleanup VBO and shader
-    // glDeleteBuffers(1, &vertexbuffer);
-    // glDeleteBuffers(1, &elementbuffer);
-    glDeleteBuffers(1, &particleBuffer);
+    glDeleteBuffers(2, &particleBuffer);
+    glDeleteBuffers(1, &cubeVertexBuffer);
+    glDeleteBuffers(1, &cubeElementBuffer);
     glDeleteProgram(programID);
     glDeleteVertexArrays(1, &VertexArrayID);
 
@@ -443,17 +357,17 @@ void processInput(GLFWwindow *window)
         camera_position -= cameraSpeed * camera_target;
     
     float rotationSpeed = 1.0f;
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-            angle += rotationSpeed * deltaTime * 100;
-            View = glm::rotate(View, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-        }
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-            angle -= rotationSpeed * deltaTime * 100;
-            View = glm::rotate(View, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-        }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        angle += rotationSpeed * deltaTime * 100;
+        View = glm::rotate(View, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        angle -= rotationSpeed * deltaTime * 100;
+        View = glm::rotate(View, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
     //TODO add translations
-
 }
+
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------

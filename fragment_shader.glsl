@@ -1,18 +1,27 @@
 #version 330 core
 
-in vec2 fragTexCoord;
+out vec4 FragColor;
 
-// Ouput data
-out vec3 color;
-
-uniform sampler2D textureSampler;
-
-void main(){
-     vec3 texColor = texture(textureSampler, fragTexCoord).rgb;
-     
-     color =vec3(1., 1. ,1.);
+void main() {
+    FragColor = vec4(1.0, 1.0, 1.0, 1.0);  // White color for lines
 }
 
+
+
+// #version 330 core
+
+// in vec2 fragTexCoord;
+
+// // Ouput data
+// out vec3 color;
+
+// uniform sampler2D textureSampler;
+
+// void main(){
+//      vec3 texColor = texture(textureSampler, fragTexCoord).rgb;
+     
+//      color =vec3(1., 1. ,1.);
+// }
 
 // #version 330 core
 

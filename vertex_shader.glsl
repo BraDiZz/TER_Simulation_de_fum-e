@@ -18,3 +18,12 @@ void main(){
 
 }
 
+// #version 330 core
+
+// layout(location = 0) in vec3 vertices_position_modelspace;
+
+// uniform mat4 MVP;  // Combined Model-View-Projection matrix
+
+// void main() {
+//     gl_Position = MVP * vec4(vertices_position_modelspace, 1.0);
+// }
