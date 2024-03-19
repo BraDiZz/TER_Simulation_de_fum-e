@@ -17,6 +17,7 @@ using namespace std;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <limits>
 
 using namespace glm;
 
@@ -62,7 +63,7 @@ float lifeTime = 1.f; // durée de vie d'une particule en seconde
 float nbParticule = 100.f;// nombre de particule
 float cycle = 0.001; // cycle d'apparition des particules
 bool isChecked = true;
-const char *meshAvailable[] = { "Smoke","Mesh1", "Mesh2", "Mesh3"};
+const char *meshAvailable[] = { "Smoke","Sphère", "Chair", "Suzanne"};
 int currentMesh = 0;
 
 
@@ -186,6 +187,44 @@ vec3 generate_position(){
     return vec3(x,y,z);
 }
 
+//std::numeric_limits<float>::max();
+//std::numeric_limits<float>::min();
+
+float min_float(float a, float b){
+    if(a<b){
+        return a;
+    }else{
+        return b;
+    }
+
+}
+
+float max_float(float a , float b){
+    if(a>b){
+        return a;
+    }else{
+        return b;
+    }
+}
+
+vec3 generate_triangle(vec3 a, vec3 b, vec3 c){
+    float Xmax,Xmin,Ymax,Ymin,Zmax,Zmin;
+    Xmax=max_float(a[0],max_float(b[0],c[0]));
+    Xmin=min_float(a[0],min_float(b[0],c[0]));
+    Ymax=max_float(a[1],max_float(b[1],c[1]));
+    Ymin=min_float(a[1],min_float(b[1],c[1]));
+    Zmax=max_float(a[2],max_float(b[2],c[2]));
+    Zmin=min_float(a[2],min_float(b[2],c[2]));
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> disx(Xmin, Xmax);
+    std::uniform_real_distribution<float> disy(Ymin, Ymax);
+    std::uniform_real_distribution<float> disz(Zmin, Zmax);
+
+    return vec3(disx(gen),disy(gen),disz(gen));
+}
+
 float lifeglobal = lifeTime*200.f;
 
 struct Particle{
@@ -197,7 +236,7 @@ struct Particle{
 
 bool generate=false;
 
-
+bool sphere_generate = false;
 
 glm::mat4 View;
 glm::mat4 Model;
@@ -289,7 +328,10 @@ int main( void )
     std::vector<std::vector<unsigned short> > triangles;
     std::vector<glm::vec3> indexed_vertices; // sommets
 
-    //setCube(indices,indexed_vertices,side);
+    std::vector<unsigned short> indices_mesh; //Triangles concaténés dans une liste
+    std::vector<std::vector<unsigned short> > triangles_mesh;
+    std::vector<glm::vec3> indexed_vertices_mesh; // sommets
+
     
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
@@ -377,7 +419,7 @@ int main( void )
         ImVec4 smokeColor = ImVec4(color[0], color[1], color[2], 1.0f);
         DrawWindArrow(windStrength, arrowDirection,smokeColor);
         ImGui::Dummy(ImVec2(0.0f, 200.0f)); // Ajouter un espace vertical
-        ImGui::SliderFloat("Nombre de particule", &nbParticule, 100.0f, 100000.0f,"%2.f"); // à déterminer
+        ImGui::SliderFloat("Nombre de particule", &nbParticule, 100.0f, 5000.0f,"%2.f"); // à déterminer
         ImGui::SliderFloat("Vitesse de cycle en ms", &cycle, 1.0f, 1000.0f); // à déterminer
         ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 20.0f); // à déterminer
 
@@ -449,38 +491,140 @@ int main( void )
 
         //genere de nouvelle particule tant que generate vaut true
         
-        std::vector<Particle> acc_stock;
+        if(currentMesh==0){
+            std::vector<Particle> acc_stock;
 
-        if(generate){
-            for(int i=0;i<nbParticule;i++){
-                Particle acc;
-                acc.position = generate_position();
-                acc.deplacement=generate_deplacement();
-                acc_stock.push_back(acc);
+            if(generate){
+                for(int i=0;i<nbParticule;i++){
+                    Particle acc;
+                    acc.position = generate_position();
+                    acc.deplacement=generate_deplacement();
+                    acc_stock.push_back(acc);
+                }
+            }
+            
+        
+
+            int taille_prov=particles.size();
+            for (int i = 0; i < taille_prov; ++i) {
+                particles[i].life=particles[i].life-1;
+                if(particles[i].life>0){
+                    particles[i].position += particles[i].deplacement; 
+                    acc_stock.push_back(particles[i]);
+                }else{
+                    
+                    particles[i].position=generate_position();
+                    particles[i].life=lifeglobal;
+                    acc_stock.push_back(particles[i]);
+                }
+            }
+
+            particles.clear();
+            particles.resize(acc_stock.size());
+            for(int i=0;i<acc_stock.size();i++){
+                particles[i]=acc_stock[i];
             }
         }
-        
-    
 
-        
-        for (int i = 0; i < particles.size(); ++i) {
-            particles[i].life=particles[i].life-1;
-            if(particles[i].life>0){
-                particles[i].position += particles[i].deplacement; 
-                acc_stock.push_back(particles[i]);
+        if(currentMesh==1){
+            indexed_vertices_mesh.clear();
+            indices_mesh.clear();
+            loadOFF("./data/sphere.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
+            if(generate && !sphere_generate){
+                particles.clear();
+                particles.resize(indexed_vertices_mesh.size());
+                for(int i=0;i<indexed_vertices_mesh.size();i++){
+                    particles[i].position=indexed_vertices_mesh[i];
+                }
+
+                for(int i=0;i<indices_mesh.size();i+=3){
+                    vec3 x=indexed_vertices_mesh[indices_mesh[i]];
+                    vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
+                    vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
+                    for(int j=0;j<nbParticule;j++){
+                        Particle acc;
+                        acc.position=generate_triangle(x,y,z);
+                        particles.push_back(acc);
+                    }
+                }
+
+            sphere_generate=true;
+
             }else{
+                if(!generate){
+                    particles.clear();
+                    sphere_generate=false;
+                }
                 
-                particles[i].position=generate_position();
-                particles[i].life=lifeglobal;
-                acc_stock.push_back(particles[i]);
             }
         }
 
-        particles.clear();
-        particles.resize(acc_stock.size());
-        for(int i=0;i<acc_stock.size();i++){
-            particles[i]=acc_stock[i];
+        if(currentMesh==2){
+            indexed_vertices_mesh.clear();
+            indices_mesh.clear();
+            loadOFF("./data/chair.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
+            if(generate && !sphere_generate){
+                particles.clear();
+                particles.resize(indexed_vertices_mesh.size());
+                for(int i=0;i<indexed_vertices_mesh.size();i++){
+                    particles[i].position=indexed_vertices_mesh[i];
+                }
+
+                for(int i=0;i<indices_mesh.size();i+=3){
+                    vec3 x=indexed_vertices_mesh[indices_mesh[i]];
+                    vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
+                    vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
+                    for(int j=0;j<nbParticule;j++){
+                        Particle acc;
+                        acc.position=generate_triangle(x,y,z);
+                        particles.push_back(acc);
+                    }
+                }
+
+            sphere_generate=true;
+
+            }else{
+                if(!generate){
+                    particles.clear();
+                    sphere_generate=false;
+                }
+                
+            }
         }
+
+        if(currentMesh==3){
+            indexed_vertices_mesh.clear();
+            indices_mesh.clear();
+            loadOFF("./data/suzanne.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
+            if(generate && !sphere_generate){
+                particles.clear();
+                particles.resize(indexed_vertices_mesh.size());
+                for(int i=0;i<indexed_vertices_mesh.size();i++){
+                    particles[i].position=indexed_vertices_mesh[i];
+                }
+
+                for(int i=0;i<indices_mesh.size();i+=3){
+                    vec3 x=indexed_vertices_mesh[indices_mesh[i]];
+                    vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
+                    vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
+                    for(int j=0;j<nbParticule;j++){
+                        Particle acc;
+                        acc.position=generate_triangle(x,y,z);
+                        particles.push_back(acc);
+                    }
+                }
+
+            sphere_generate=true;
+
+            }else{
+                if(!generate){
+                    particles.clear();
+                    sphere_generate=false;
+                }
+                
+            }
+        }
+        
         
         
 
