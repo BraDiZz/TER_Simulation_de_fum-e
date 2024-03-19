@@ -59,14 +59,15 @@ float side = 1.7; //taille du cube
 float windDirection = 0; //direction du vent, angle?
 float windStrength = 0; //force du vent
 float gravity = 0;// force de la gravité
-float lifeTime = 1.f; // durée de vie d'une particule en seconde
-float nbParticule = 100.f;// nombre de particule
+float lifeTime = 350.f; // durée de vie d'une particule en seconde
+float nbParticule = 40.f;// nombre de particule
+float paticuleSize = 8.f;
 float cycle = 0.001; // cycle d'apparition des particules
 float velocity = 0.01f;
 bool isChecked = true;
 const char *meshAvailable[] = { "Smoke","Sphère", "Chair", "Suzanne"};
 int currentMesh = 0;
-
+int acc=0;
 
 
 int idx(int i,int j,int nX,int nY){ // permet de connaitre l'indice dans un tableau
@@ -95,7 +96,7 @@ int idx(int i,int j,int nX,int nY){ // permet de connaitre l'indice dans un tabl
     
     ImGui::GetWindowDrawList()->AddLine(startPos, endPos, IM_COL32(smokeColor.x*255, smokeColor.y*255, smokeColor.z*255, smokeColor.w*255), 2.0f);
     ImGui::GetWindowDrawList()->AddTriangleFilled(ImVec2(endPos.x,endPos.y + sizeT * 0.5f), ImVec2(endPos.x, endPos.y - sizeT * 0.5f), ImVec2(endPos.x + sizeT * 0.5f, endPos.y), IM_COL32(smokeColor.x*255, smokeColor.y*255, smokeColor.z*255, smokeColor.w*255)); // Ajuster correctement les coordonnées pour le triangle
-    return glm::vec3(arrowX/20000,0,arrowY/20000);
+    return glm::vec3(arrowX/10000,0,arrowY/10000);
 }
 
 void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &indexed_vertices,float side,int create) {
@@ -406,7 +407,7 @@ int main( void )
 
         ImGui::SliderFloat("Angle du vent", &windDirection, 0.0f, 360.0f);
         ImGui::SliderFloat("Force du vent", &windStrength, 0.0f, 40.0f,"%1.f");
-        ImGui::SliderFloat("Force de la gravité", &gravity, 0.0f, 0.0002f,"%.6f");
+        ImGui::SliderFloat("Force de la gravité", &gravity, 0.0f, 0.0004f,"%.6f");
         vec3 gravityVector = {0,-gravity,0};
         float arrowDirection = fmod(windDirection, 360.0f) * (3.14159265358979323846f / 180.0f); // Convertir en radians
         // Generate samples and plot them
@@ -428,7 +429,7 @@ int main( void )
         ImGui::SliderFloat("Vitesse d'expulsion des particules", &velocity, 0.0f, 0.03f,"%.3f"); // à déterminer
         ImGui::SliderFloat("Vitesse de cycle en ms", &cycle, 1.0f, 1000.0f); // à déterminer
         ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 1000.0f); // à déterminer
-
+        ImGui::SliderFloat("Taille des particules", &paticuleSize, 1.0f, 20.0f); // à déterminer
 
         if (ImGui::BeginCombo("Mesh disponible", meshAvailable[currentMesh]))
             {
@@ -499,7 +500,7 @@ int main( void )
         
         if(currentMesh==0){
             std::vector<Particle> acc_stock;
-
+            
             if(generate){
                 for(int i=0;i<nbParticule;i++){
                     Particle acc;
@@ -644,8 +645,8 @@ int main( void )
          
         
         glGenBuffers(2, &particleBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
-        glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
+        // glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
+        // glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
 
        // Mettre à jour les données des particules
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
@@ -654,7 +655,6 @@ int main( void )
 
 
          
-
 
         Model = glm::mat4(1.f);
 
@@ -717,6 +717,8 @@ int main( void )
             0,             // stride
             (void*)0       // array buffer offset
         );
+
+        glPointSize(paticuleSize);
 
         // Draw the particle
         glDrawArrays(GL_POINTS, 0, particles.size());
