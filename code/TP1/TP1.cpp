@@ -62,16 +62,18 @@ float gravity = 0;// force de la gravité
 float lifeTime = 1.f; // durée de vie d'une particule en seconde
 float nbParticule = 100.f;// nombre de particule
 float cycle = 0.001; // cycle d'apparition des particules
+float velocity = 0.01f;
 bool isChecked = true;
 const char *meshAvailable[] = { "Smoke","Sphère", "Chair", "Suzanne"};
 int currentMesh = 0;
+
 
 
 int idx(int i,int j,int nX,int nY){ // permet de connaitre l'indice dans un tableau
         return i*nY+j;
 }
 
-void DrawWindArrow(float windStrength, float windDirection, ImVec4 smokeColor)
+ glm::vec3 DrawWindArrow(float windStrength, float windDirection, ImVec4 smokeColor)
 {
     // Définir la longueur de la flèche
     float arrowLength = 20.0f;
@@ -80,8 +82,8 @@ void DrawWindArrow(float windStrength, float windDirection, ImVec4 smokeColor)
     // Calculer les composantes x et y de la flèche en fonction de la direction du vent
     float arrowX = cosf(windDirection) * windStrength/sizeA * arrowLength;
     float arrowY = sinf(windDirection) * windStrength/sizeA * arrowLength;
+
     float sizeT = windStrength/2+10;
-    
 
     // Dessiner la flèche
     ImVec2 startPos = ImGui::GetCursorScreenPos();
@@ -93,6 +95,7 @@ void DrawWindArrow(float windStrength, float windDirection, ImVec4 smokeColor)
     
     ImGui::GetWindowDrawList()->AddLine(startPos, endPos, IM_COL32(smokeColor.x*255, smokeColor.y*255, smokeColor.z*255, smokeColor.w*255), 2.0f);
     ImGui::GetWindowDrawList()->AddTriangleFilled(ImVec2(endPos.x,endPos.y + sizeT * 0.5f), ImVec2(endPos.x, endPos.y - sizeT * 0.5f), ImVec2(endPos.x + sizeT * 0.5f, endPos.y), IM_COL32(smokeColor.x*255, smokeColor.y*255, smokeColor.z*255, smokeColor.w*255)); // Ajuster correctement les coordonnées pour le triangle
+    return glm::vec3(arrowX/20000,0,arrowY/20000);
 }
 
 void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &indexed_vertices,float side,int create) {
@@ -231,6 +234,7 @@ struct Particle{
     glm::vec3 position;
     float life = lifeglobal;
     vec3 deplacement;
+    float baseVelocity = 0.01f;
 };
 
 
@@ -402,10 +406,11 @@ int main( void )
 
         ImGui::SliderFloat("Angle du vent", &windDirection, 0.0f, 360.0f);
         ImGui::SliderFloat("Force du vent", &windStrength, 0.0f, 40.0f,"%1.f");
-        ImGui::SliderFloat("Force de la gravité", &gravity, 0.0f, 10.0f);
+        ImGui::SliderFloat("Force de la gravité", &gravity, 0.0f, 0.0002f,"%.6f");
+        vec3 gravityVector = {0,-gravity,0};
         float arrowDirection = fmod(windDirection, 360.0f) * (3.14159265358979323846f / 180.0f); // Convertir en radians
         // Generate samples and plot them
-        float samples[100];
+        //float samples[100];
         // for (int n = 0; n < 100; n++)
         //     samples[n] = sinf(n * 0.2f + ImGui::GetTime() * windStrength);
         // Dans la boucle principale de votre programme :
@@ -417,11 +422,12 @@ int main( void )
         //ImGui::PlotLines("Samples", samples, 100);
         // Utiliser la couleur sélectionnée pour dessiner le cube
         ImVec4 smokeColor = ImVec4(color[0], color[1], color[2], 1.0f);
-        DrawWindArrow(windStrength, arrowDirection,smokeColor);
+        glm::vec3 windVector = DrawWindArrow(windStrength, arrowDirection,smokeColor);
         ImGui::Dummy(ImVec2(0.0f, 200.0f)); // Ajouter un espace vertical
-        ImGui::SliderFloat("Nombre de particule", &nbParticule, 100.0f, 5000.0f,"%2.f"); // à déterminer
+        ImGui::SliderFloat("Nombre de particule", &nbParticule, 1.0f, 200.0f,"%2.f"); // à déterminer
+        ImGui::SliderFloat("Vitesse d'expulsion des particules", &velocity, 0.0f, 0.03f,"%.3f"); // à déterminer
         ImGui::SliderFloat("Vitesse de cycle en ms", &cycle, 1.0f, 1000.0f); // à déterminer
-        ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 20.0f); // à déterminer
+        ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 1000.0f); // à déterminer
 
 
         if (ImGui::BeginCombo("Mesh disponible", meshAvailable[currentMesh]))
@@ -498,24 +504,28 @@ int main( void )
                 for(int i=0;i<nbParticule;i++){
                     Particle acc;
                     acc.position = generate_position();
+                    acc.life = lifeTime;
+                    acc.baseVelocity=velocity;
                     acc.deplacement=generate_deplacement();
                     acc_stock.push_back(acc);
                 }
             }
             
         
-
             int taille_prov=particles.size();
             for (int i = 0; i < taille_prov; ++i) {
                 particles[i].life=particles[i].life-1;
                 if(particles[i].life>0){
                     particles[i].position += particles[i].deplacement; 
+                    particles[i].position += windVector;
+                    particles[i].position += vec3(0,particles[i].baseVelocity,0);
+                    particles[i].baseVelocity += gravityVector.y;
                     acc_stock.push_back(particles[i]);
                 }else{
                     
-                    particles[i].position=generate_position();
-                    particles[i].life=lifeglobal;
-                    acc_stock.push_back(particles[i]);
+                    // particles[i].position=generate_position();
+                    // particles[i].life=lifeglobal;
+                    // acc_stock.push_back(particles[i]);
                 }
             }
 

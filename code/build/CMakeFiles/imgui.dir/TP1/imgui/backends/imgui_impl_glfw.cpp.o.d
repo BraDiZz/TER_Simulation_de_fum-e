@@ -1,8 +1,8 @@
 CMakeFiles/imgui.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o: \
- /mnt/c/Users/33652/Desktop/TER_BIB/code/TP1/imgui/backends/imgui_impl_glfw.cpp \
+ /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_glfw.cpp \
  /usr/include/stdc-predef.h \
- /mnt/c/Users/33652/Desktop/TER_BIB/code/TP1/imgui/include/imgui.h \
- /mnt/c/Users/33652/Desktop/TER_BIB/code/TP1/imgui/include/imconfig.h \
+ /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/include/imgui.h \
+ /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/include/imconfig.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h /usr/include/string.h \
@@ -17,8 +17,8 @@ CMakeFiles/imgui.dir/TP1/imgui/backends/imgui_impl_glfw.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h /usr/include/assert.h \
- /mnt/c/Users/33652/Desktop/TER_BIB/code/TP1/imgui/backends/imgui_impl_glfw.h \
- /mnt/c/Users/33652/Desktop/TER_BIB/code/external/glfw-3.1.2/include/GLFW/glfw3.h \
+ /home/e20230010831/Bureau/TER_BIB/code/TP1/imgui/backends/imgui_impl_glfw.h \
+ /home/e20230010831/Bureau/TER_BIB/code/external/glfw-3.1.2/include/GLFW/glfw3.h \
  /usr/include/GL/gl.h /usr/include/GL/glext.h \
  /usr/include/KHR/khrplatform.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \

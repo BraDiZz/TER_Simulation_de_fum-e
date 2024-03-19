@@ -1,5 +1,5 @@
 external/glfw-3.1.2/examples/CMakeFiles/gears.dir/gears.c.o: \
- /mnt/c/Users/33652/Desktop/TER_BIB/code/external/glfw-3.1.2/examples/gears.c \
+ /home/e20230010831/Bureau/TER_BIB/code/external/glfw-3.1.2/examples/gears.c \
  /usr/include/stdc-predef.h /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -58,9 +58,9 @@ external/glfw-3.1.2/examples/CMakeFiles/gears.dir/gears.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h \
- /mnt/c/Users/33652/Desktop/TER_BIB/code/external/glfw-3.1.2/include/GLFW/glfw3.h \
+ /home/e20230010831/Bureau/TER_BIB/code/external/glfw-3.1.2/include/GLFW/glfw3.h \
  /usr/include/GL/gl.h \
- /mnt/c/Users/33652/Desktop/TER_BIB/code/external/glfw-3.1.2/deps/GL/glext.h \
+ /home/e20230010831/Bureau/TER_BIB/code/external/glfw-3.1.2/deps/GL/glext.h \
  /usr/include/inttypes.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
