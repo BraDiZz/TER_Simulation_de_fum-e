@@ -232,10 +232,10 @@ vec3 generate_triangle(vec3 a, vec3 b, vec3 c){
 float lifeglobal = lifeTime*200.f;
 
 struct Particle{
-    glm::vec3 position;
-    float life = lifeglobal;
-    vec3 deplacement;
-    float baseVelocity = 0.01f;
+    std::vector<glm::vec3> position;
+    std::vector<float> life;
+    std::vector<glm::vec3> deplacement;
+    std::vector<float> baseVelocity;
 };
 
 
@@ -347,8 +347,8 @@ int main( void )
     GLuint particleBuffer;
     
 
-    std::vector<Particle> particles;
-
+    //std::vector<Particle> particles;
+    Particle particles;
     
     
 
@@ -474,7 +474,7 @@ int main( void )
         }
         
 
-        ImGui::Text("nbParticule: %d", particles.size());
+        ImGui::Text("nbParticule: %d", particles.position.size());
 
 
 
@@ -501,41 +501,48 @@ int main( void )
         if(currentMesh==0){
             std::vector<Particle> acc_stock;
             
+            
             if(generate){
                 for(int i=0;i<nbParticule;i++){
-                    Particle acc;
-                    acc.position = generate_position();
-                    acc.life = lifeTime;
-                    acc.baseVelocity=velocity;
-                    acc.deplacement=generate_deplacement();
-                    acc_stock.push_back(acc);
+                    particles.position.push_back(generate_position());
+                    particles.life.push_back(lifeTime);
+                    particles.baseVelocity.push_back(velocity);
+                    particles.deplacement.push_back(generate_deplacement());
                 }
             }
             
-        
-            int taille_prov=particles.size();
+            
+            int taille_prov=particles.position.size();
             for (int i = 0; i < taille_prov; ++i) {
-                particles[i].life=particles[i].life-1;
-                if(particles[i].life>0){
-                    particles[i].position += particles[i].deplacement; 
-                    particles[i].position += windVector;
-                    particles[i].position += vec3(0,particles[i].baseVelocity,0);
-                    particles[i].baseVelocity += gravityVector.y;
-                    acc_stock.push_back(particles[i]);
+                particles.life[i]=particles.life[i]-1;
+                if(particles.life[i]>0){
+                    particles.position[i] += particles.deplacement[i]; 
+                    particles.position[i] += windVector;
+                    particles.position[i] += vec3(0,particles.baseVelocity[i],0);
+                    particles.baseVelocity[i] += gravityVector.y;
+                    //acc_stock.push_back(particles[i]);
                 }else{
-                    
-                    // particles[i].position=generate_position();
-                    // particles[i].life=lifeglobal;
-                    // acc_stock.push_back(particles[i]);
+                        
+                    particles.position.erase(particles.position.begin()+i);
+                    particles.deplacement.erase(particles.deplacement.begin()+i);
+                    particles.life.erase(particles.life.begin()+i);
+                    particles.baseVelocity.erase(particles.baseVelocity.begin()+i);
+                    //particles.position[i]=generate_position();
+                    //particles.life[i]=lifeglobal;
                 }
             }
 
+            /*
             particles.clear();
             particles.resize(acc_stock.size());
             for(int i=0;i<acc_stock.size();i++){
                 particles[i]=acc_stock[i];
-            }
+            }*/
         }
+
+
+
+        /*
 
         if(currentMesh==1){
             indexed_vertices_mesh.clear();
@@ -634,7 +641,7 @@ int main( void )
                 }
                 
             }
-        }
+        }*/
         
         
         
@@ -645,13 +652,13 @@ int main( void )
          
         
         glGenBuffers(2, &particleBuffer);
-        // glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
-        // glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
+        glBufferData(GL_ARRAY_BUFFER, particles.position.size() * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
 
        // Mettre à jour les données des particules
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
-        //glBufferSubData(GL_ARRAY_BUFFER, 0, numParticles * sizeof(glm::vec3), &particles[0].position);
-        glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Particle), particles.data(), GL_DYNAMIC_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, particles.position.size() * sizeof(glm::vec3), &particles.position[0]);
+        //glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Particle), particles.data(), GL_DYNAMIC_DRAW);
 
 
          
@@ -721,7 +728,7 @@ int main( void )
         glPointSize(paticuleSize);
 
         // Draw the particle
-        glDrawArrays(GL_POINTS, 0, particles.size());
+        glDrawArrays(GL_POINTS, 0, particles.position.size());
         //glDrawArrays(GL_POINTS, 0, 1);
 
         glDisableVertexAttribArray(0);
