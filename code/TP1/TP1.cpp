@@ -31,6 +31,8 @@ using namespace glm;
 #include <imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
 
+#include "eigen/Eigen/Dense"
+
 void processInput(GLFWwindow *window);
 
 // settings
@@ -64,6 +66,9 @@ float nbParticule = 40.f;// nombre de particule
 float paticuleSize = 8.f;
 float cycle = 0.001; // cycle d'apparition des particules
 float velocity = 0.01f;
+float oscillationX = 0.f;
+float oscillationY = 0.f;
+float oscillationZ = 0.f;
 bool isChecked = true;
 const char *meshAvailable[] = { "Smoke","Sphère", "Chair", "Suzanne"};
 int currentMesh = 0;
@@ -100,67 +105,15 @@ int idx(int i,int j,int nX,int nY){ // permet de connaitre l'indice dans un tabl
 }
 
 void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &indexed_vertices,float side,int create) {
-    // Supprime les données précédentes
-    indices.clear();
-    indexed_vertices.clear();
-
-    // Sommets du cube
-    indexed_vertices.push_back(glm::vec3(-side, -side, -side)); // 0
-    indexed_vertices.push_back(glm::vec3(side, -side, -side));  // 1
-    indexed_vertices.push_back(glm::vec3(side, side, -side));   // 2
-    indexed_vertices.push_back(glm::vec3(-side, side, -side));  // 3
-    indexed_vertices.push_back(glm::vec3(-side, -side, side));  // 4
-    indexed_vertices.push_back(glm::vec3(side, -side, side));   // 5
-    indexed_vertices.push_back(glm::vec3(side, side, side));    // 6
-    indexed_vertices.push_back(glm::vec3(-side, side, side));   // 7
-
-    //face 1 carré
-
-    indices.push_back(0);
-    indices.push_back(1);
-
-    indices.push_back(1);
-    indices.push_back(2);
-
-    indices.push_back(2);
-    indices.push_back(3);
-
-    indices.push_back(3);
-    indices.push_back(0);
-
-    //face 2    
-
-    indices.push_back(4);
-    indices.push_back(5);
-
-    indices.push_back(5);
-    indices.push_back(6);
-
-    indices.push_back(6);
-    indices.push_back(7);
-
-    indices.push_back(7);
-    indices.push_back(4);
-
-    //connecté les faces
-
-    indices.push_back(0);
-    indices.push_back(4);
-
-    indices.push_back(1);
-    indices.push_back(5);
-
-    indices.push_back(2);
-    indices.push_back(6);
-
-    indices.push_back(3);
-    indices.push_back(7);
-
+    indices.clear();indexed_vertices.clear();
+    indexed_vertices.push_back(glm::vec3(-side, -side, -side));indexed_vertices.push_back(glm::vec3(side, -side, -side));indexed_vertices.push_back(glm::vec3(side, side, -side));indexed_vertices.push_back(glm::vec3(-side, side, -side));indexed_vertices.push_back(glm::vec3(-side, -side, side));indexed_vertices.push_back(glm::vec3(side, -side, side)); 
+    indexed_vertices.push_back(glm::vec3(side, side, side));indexed_vertices.push_back(glm::vec3(-side, side, side)); 
+    indices.push_back(0);indices.push_back(1);indices.push_back(1);indices.push_back(2);indices.push_back(2);indices.push_back(3);indices.push_back(3);indices.push_back(0);  indices.push_back(4);indices.push_back(5);indices.push_back(5);
+    indices.push_back(6);indices.push_back(6);indices.push_back(7);indices.push_back(7);indices.push_back(4);indices.push_back(0);indices.push_back(4);indices.push_back(1);indices.push_back(5);indices.push_back(2);indices.push_back(6);indices.push_back(3);indices.push_back(7);
     if(create==0){
         indices.clear();
         indexed_vertices.clear();
     }
-
 }
 
 
@@ -170,7 +123,7 @@ vec3 generate_deplacement(){
     std::uniform_real_distribution<float> dis(-2.0f, 2.0f);
 
     std::uniform_real_distribution<float> dis2(1.0f, 10.0f);
-    float y=0.001f*dis2(gen);
+    float y=0.0005f*dis2(gen);
     float z=0.f;
     float x=dis(gen)*0.001;
     while(x==0){
@@ -239,7 +192,7 @@ struct Particle{
 };
 
 
-bool generate=false;
+bool start=false;
 
 bool sphere_generate = false;
 
@@ -346,49 +299,31 @@ int main( void )
     GLuint elementbuffer;
     GLuint particleBuffer;
     
-
-    //std::vector<Particle> particles;
     Particle particles;
     
-    
-
     glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
         
-    
-
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
-
-
     // Setup ImGui binding
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-
-    // Setup style
     ImGui::StyleColorsDark();
-
     do{
-
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-         processInput(window);
-
-
+        processInput(window);
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         // Use our shader
         glUseProgram(programID);
-
-        // Poll and handle events
         glfwPollEvents();
-
         // Start the ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -396,32 +331,14 @@ int main( void )
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.8f, 0.0f, 0.8f, 0.75f)); // changer la couleur du fond de la fenêtre imgui
         // Create your ImGui window here
         ImGui::Begin("Panneau de contrôle");
-
-        
-        
         ImGui::SliderFloat("Taille du cube", &side, 0.01f, 4.f);
-
-        // Sélecteur de couleur RGB
         static float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f }; // Initialiser à blanc
         ImGui::ColorEdit4("Color", color);
-
         ImGui::SliderFloat("Angle du vent", &windDirection, 0.0f, 360.0f);
         ImGui::SliderFloat("Force du vent", &windStrength, 0.0f, 40.0f,"%1.f");
         ImGui::SliderFloat("Force de la gravité", &gravity, 0.0f, 0.0004f,"%.6f");
         vec3 gravityVector = {0,-gravity,0};
         float arrowDirection = fmod(windDirection, 360.0f) * (3.14159265358979323846f / 180.0f); // Convertir en radians
-        // Generate samples and plot them
-        //float samples[100];
-        // for (int n = 0; n < 100; n++)
-        //     samples[n] = sinf(n * 0.2f + ImGui::GetTime() * windStrength);
-        // Dans la boucle principale de votre programme :
-        // Calculer la force du vent
-        // Dessiner la flèche représentant la direction du vent
-        
-
-
-        //ImGui::PlotLines("Samples", samples, 100);
-        // Utiliser la couleur sélectionnée pour dessiner le cube
         ImVec4 smokeColor = ImVec4(color[0], color[1], color[2], 1.0f);
         glm::vec3 windVector = DrawWindArrow(windStrength, arrowDirection,smokeColor);
         ImGui::Dummy(ImVec2(0.0f, 200.0f)); // Ajouter un espace vertical
@@ -430,7 +347,6 @@ int main( void )
         ImGui::SliderFloat("Vitesse de cycle en ms", &cycle, 1.0f, 1000.0f); // à déterminer
         ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 1000.0f); // à déterminer
         ImGui::SliderFloat("Taille des particules", &paticuleSize, 1.0f, 20.0f); // à déterminer
-
         if (ImGui::BeginCombo("Mesh disponible", meshAvailable[currentMesh]))
             {
                 for (int i = 0; i < IM_ARRAYSIZE(meshAvailable); i++)
@@ -446,63 +362,37 @@ int main( void )
                 ImGui::EndCombo();
             }
 
-
         ImGui::Checkbox("Montrer le cube", &isChecked);
-
-        if (isChecked)
-        {
+        if (isChecked){
             setCube(indices,indexed_vertices,side,1);
-        }
-        else
-        {
+        }else{
             setCube(indices,indexed_vertices,side,0);
         }
 
-        
-
-        // Créer un bouton ImGui
-        if (ImGui::Button("Lancer la simulation"))
-        {
+        if (ImGui::Button("Lancer la simulation")){
             //printf("Le bouton a été cliqué !\n");
-            generate=!generate;
+            start=!start;
         }
-        if(generate){
+        if(start){
             ImGui::Text("en cours"); 
-        }
-        else{
+        }else{
             ImGui::Text("arretez");
         }
-        
-
         ImGui::Text("nbParticule: %d", particles.position.size());
-
-
-
-        
-
         ImGui::PopStyleColor(); // Restaurer la couleur de fond par défaut après la fin de la fenêtre important!!!!
-
         ImGui::End();
-
 
         glGenBuffers(1, &vertexbuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
-
         // Generate a buffer for the indices as well
-        
         glGenBuffers(1, &elementbuffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
-
-
         //genere de nouvelle particule tant que generate vaut true
-        
         if(currentMesh==0){
             std::vector<Particle> acc_stock;
-            
-            
-            if(generate){
+            if(start){
                 for(int i=0;i<nbParticule;i++){
                     particles.position.push_back(generate_position());
                     particles.life.push_back(lifeTime);
@@ -510,8 +400,6 @@ int main( void )
                     particles.deplacement.push_back(generate_deplacement());
                 }
             }
-            
-            
             int taille_prov=particles.position.size();
             for (int i = 0; i < taille_prov; ++i) {
                 particles.life[i]=particles.life[i]-1;
@@ -531,7 +419,6 @@ int main( void )
                     //particles.life[i]=lifeglobal;
                 }
             }
-
             /*
             particles.clear();
             particles.resize(acc_stock.size());
@@ -539,11 +426,7 @@ int main( void )
                 particles[i]=acc_stock[i];
             }*/
         }
-
-
-
         /*
-
         if(currentMesh==1){
             indexed_vertices_mesh.clear();
             indices_mesh.clear();
@@ -569,9 +452,9 @@ int main( void )
             sphere_generate=true;
 
             }else{
-                if(!generate){
+                if(!start){
                     particles.clear();
-                    sphere_generate=false;
+                    sphere_start=false;
                 }
                 
             }
@@ -581,7 +464,7 @@ int main( void )
             indexed_vertices_mesh.clear();
             indices_mesh.clear();
             loadOFF("./data/chair.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
-            if(generate && !sphere_generate){
+            if(start && !sphere_start){
                 particles.clear();
                 particles.resize(indexed_vertices_mesh.size());
                 for(int i=0;i<indexed_vertices_mesh.size();i++){
@@ -591,10 +474,10 @@ int main( void )
                 for(int i=0;i<indices_mesh.size();i+=3){
                     vec3 x=indexed_vertices_mesh[indices_mesh[i]];
                     vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
-                    vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
+                    vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];gravityVector
                     for(int j=0;j<nbParticule;j++){
                         Particle acc;
-                        acc.position=generate_triangle(x,y,z);
+                        acc.position=start_triangle(x,y,z);
                         particles.push_back(acc);
                     }
                 }
@@ -602,7 +485,7 @@ int main( void )
             sphere_generate=true;
 
             }else{
-                if(!generate){
+                if(!star){
                     particles.clear();
                     sphere_generate=false;
                 }
@@ -614,7 +497,7 @@ int main( void )
             indexed_vertices_mesh.clear();
             indices_mesh.clear();
             loadOFF("./data/suzanne.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
-            if(generate && !sphere_generate){
+            if(star && !sphere_generate){
                 particles.clear();
                 particles.resize(indexed_vertices_mesh.size());
                 for(int i=0;i<indexed_vertices_mesh.size();i++){
@@ -635,7 +518,7 @@ int main( void )
             sphere_generate=true;
 
             }else{
-                if(!generate){
+                if(!star){
                     particles.clear();
                     sphere_generate=false;
                 }
@@ -643,46 +526,21 @@ int main( void )
             }
         }*/
         
-        
-        
-
-        
-        
-       
-         
-        
         glGenBuffers(2, &particleBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
         glBufferData(GL_ARRAY_BUFFER, particles.position.size() * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
-
        // Mettre à jour les données des particules
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
         glBufferSubData(GL_ARRAY_BUFFER, 0, particles.position.size() * sizeof(glm::vec3), &particles.position[0]);
         //glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Particle), particles.data(), GL_DYNAMIC_DRAW);
-
-
-         
-
         Model = glm::mat4(1.f);
-
-
-         View = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
-
+        View = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
         Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-
-
         // Send our transformation to the currently bound shader,
         // in the "Model View Projection" to the shader uniforms.
-        
         glUniformMatrix4fv(M, 1, GL_FALSE, &Model[0][0]);
         glUniformMatrix4fv(V, 1, GL_FALSE, &View[0][0]);
         glUniformMatrix4fv(P, 1, GL_FALSE, &Projection[0][0]);
-
-
-        
-
-        /****************************************/
-        
 
         glUniform3f(glGetUniformLocation(programID,"c"),1.,1.,1.);
 
@@ -712,7 +570,6 @@ int main( void )
 
         glDisableVertexAttribArray(0);
 
-
         glUniform3f(glGetUniformLocation(programID,"c"),smokeColor.x,smokeColor.y,smokeColor.z);
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
@@ -724,17 +581,11 @@ int main( void )
             0,             // stride
             (void*)0       // array buffer offset
         );
-
         glPointSize(paticuleSize);
-
         // Draw the particle
         glDrawArrays(GL_POINTS, 0, particles.position.size());
         //glDrawArrays(GL_POINTS, 0, 1);
-
         glDisableVertexAttribArray(0);
-
-
-        // Rendering
         ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -742,13 +593,10 @@ int main( void )
         //glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
         //glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        
+    
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
-
-
-
     } // Check if the ESC key was pressed or the window was closed
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0 );
@@ -757,11 +605,8 @@ int main( void )
     glDeleteBuffers(1, &vertexbuffer);
     glDeleteBuffers(1, &elementbuffer);
     glDeleteBuffers(2, &particleBuffer);
-
     glDeleteProgram(programID);
     glDeleteVertexArrays(1, &VertexArrayID);
-
-
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -772,8 +617,6 @@ int main( void )
 
     return 0;
 }
-
-
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
@@ -787,12 +630,6 @@ void processInput(GLFWwindow *window)
         camera_position += cameraSpeed * camera_target;
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
         camera_position -= cameraSpeed * camera_target;
-
-
-    
-    
-
-
     //rotation qui marche
     //     float Translate = 0.0;
     //     float rotateX = 0.1;
@@ -813,10 +650,7 @@ void processInput(GLFWwindow *window)
     //         glm::vec3(0.0f, 1.0f, 0.0f)
     //     );
     // }
-
-
 }
-
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

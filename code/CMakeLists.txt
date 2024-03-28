@@ -69,6 +69,11 @@ target_sources(imgui PUBLIC
 
 
 
+set(EIGEN3_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/TP1/eigen/Eigen)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
+
+
 # TP1
 add_executable(TP1
         TP1/TP1.cpp
