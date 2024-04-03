@@ -43,6 +43,7 @@ set(ALL_LIBS
 	${OPENGL_LIBRARY}
 	glfw
 	GLEW_1130
+	imgui
 )
 
 add_definitions(
@@ -52,6 +53,26 @@ add_definitions(
 	-DGLEW_STATIC
 	-D_CRT_SECURE_NO_WARNINGS
 )
+
+# ImGui setup
+set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/TP1/imgui)
+file(GLOB IMGUI_SOURCES ${IMGUI_DIR}/src/*.cpp)
+add_library(imgui STATIC ${IMGUI_SOURCES})
+target_include_directories(imgui PUBLIC ${IMGUI_DIR}/include ${IMGUI_DIR}/backends)
+
+# ImGui GLFW and OpenGL3 implementations
+target_sources(imgui PUBLIC 
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp 
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
+
+
+
+set(EIGEN3_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/TP1/eigen/Eigen)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
+
 
 # TP1
 add_executable(TP1
@@ -66,9 +87,13 @@ add_executable(TP1
 	common/objloader.hpp
 	common/vboindexer.cpp
 	common/vboindexer.hpp
+	common/stb_image.h
 	
         TP1/vertex_shader.glsl
         TP1/fragment_shader.glsl
+		TP1/geometry_shader.glsl
+		TP1/vertexCube.glsl
+		TP1/fragmentCube.glsl
 )
 target_link_libraries(TP1
 	${ALL_LIBS}
