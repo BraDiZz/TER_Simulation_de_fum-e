@@ -1,6 +1,8 @@
 #ifndef TEXTURE_HPP
 #define TEXTURE_HPP
 
+#include <string>
+
 // Load a .BMP file using our custom loader
 GLuint loadBMP_custom(const char * imagepath);
 
@@ -11,6 +13,12 @@ GLuint loadBMP_custom(const char * imagepath);
 
 // Load a .DDS file using GLFW's own loader
 GLuint loadDDS(const char * imagepath);
+
+void setDefaultTexture2DParameters(GLuint texture);
+
+GLuint loadTexture2DFromFilePath(const std::string &path);
+
+
 
 
 #endif
