@@ -87,9 +87,13 @@ add_executable(TP1
 	common/objloader.hpp
 	common/vboindexer.cpp
 	common/vboindexer.hpp
+	common/stb_image.h
 	
         TP1/vertex_shader.glsl
         TP1/fragment_shader.glsl
+		TP1/geometry_shader.glsl
+		TP1/vertexCube.glsl
+		TP1/fragmentCube.glsl
 )
 target_link_libraries(TP1
 	${ALL_LIBS}

@@ -24,6 +24,8 @@ using namespace glm;
 #include <common/shader.hpp>
 #include <common/objloader.hpp>
 #include <common/vboindexer.hpp>
+#include <common/stb_image.h>
+#include <common/texture.hpp>
 
 // include de imgui
 #include <imgui.h>
@@ -236,10 +238,6 @@ int main( void )
         return -1;
     }
 
-    
-
-    
-
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     // Hide the mouse and enable unlimited mouvement
@@ -265,7 +263,10 @@ int main( void )
     glBindVertexArray(VertexArrayID);
 
     // Create and compile our GLSL program from the shaders
-    GLuint programID = LoadShaders( "vertex_shader.glsl", "fragment_shader.glsl" );
+    GLuint programID = LoadShaders2( "vertex_shader.glsl", "geometry_shader.glsl","fragment_shader.glsl" );
+    GLuint programID2 = LoadShaders( "vertexCube.glsl", "fragmentCube.glsl");
+
+    GLuint smoke = loadTexture2DFromFilePath("../textures/smoke.png");
 
 
     //Chargement du fichier de maillage
@@ -277,6 +278,9 @@ int main( void )
     int M = glGetUniformLocation(programID,"ModelMatrix");
     int V = glGetUniformLocation(programID, "ViewMatrix");
     int P = glGetUniformLocation(programID, "ProjectionMatrix");
+    int M2 = glGetUniformLocation(programID2,"ModelMatrix");
+    int V2 = glGetUniformLocation(programID2, "ViewMatrix");
+    int P2 = glGetUniformLocation(programID2, "ProjectionMatrix");
 
     Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
@@ -290,10 +294,7 @@ int main( void )
     std::vector<std::vector<unsigned short> > triangles_mesh;
     std::vector<glm::vec3> indexed_vertices_mesh; // sommets
 
-    
-
-    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-
+    //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
     
     GLuint vertexbuffer;
     GLuint elementbuffer;
@@ -301,9 +302,14 @@ int main( void )
     
     Particle particles;
     
+    // GLint isParticle = glGetUniformLocation(programID, "isParticle");
+
     glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
-        
+
+    glUseProgram(programID2);
+    GLuint LightID2 = glGetUniformLocation(programID2, "LightPosition_worldspace");
+    
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
@@ -322,7 +328,7 @@ int main( void )
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Use our shader
-        glUseProgram(programID);
+        // glUseProgram(programID);
         glfwPollEvents();
         // Start the ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -525,6 +531,13 @@ int main( void )
                 
             }
         }*/
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, smoke);
+
+        GLuint textureLocation = glGetUniformLocation(programID, "particleTexture");
+        glUniform1i(textureLocation, 0); 
+         
         
         glGenBuffers(2, &particleBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
@@ -542,7 +555,9 @@ int main( void )
         glUniformMatrix4fv(V, 1, GL_FALSE, &View[0][0]);
         glUniformMatrix4fv(P, 1, GL_FALSE, &Projection[0][0]);
 
-        glUniform3f(glGetUniformLocation(programID,"c"),1.,1.,1.);
+        glUseProgram(programID2);
+
+        glUniform3f(glGetUniformLocation(programID2,"c"),1.,1.,1.);
 
         // 1rst attribute buffer : vertices
         glEnableVertexAttribArray(0);
@@ -570,6 +585,13 @@ int main( void )
 
         glDisableVertexAttribArray(0);
 
+        // glUseProgram(0);
+
+        glUseProgram(programID);
+
+        GLint isParticle = glGetUniformLocation(programID, "isParticle");
+        glUniform1i(isParticle, GL_TRUE); 
+
         glUniform3f(glGetUniformLocation(programID,"c"),smokeColor.x,smokeColor.y,smokeColor.z);
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
@@ -586,6 +608,10 @@ int main( void )
         glDrawArrays(GL_POINTS, 0, particles.position.size());
         //glDrawArrays(GL_POINTS, 0, 1);
         glDisableVertexAttribArray(0);
+
+        glUniform1i(isParticle, GL_FALSE); 
+
+
         ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -602,11 +628,19 @@ int main( void )
            glfwWindowShouldClose(window) == 0 );
 
     // Cleanup VBO and shader
-    glDeleteBuffers(1, &vertexbuffer);
-    glDeleteBuffers(1, &elementbuffer);
-    glDeleteBuffers(2, &particleBuffer);
-    glDeleteProgram(programID);
-    glDeleteVertexArrays(1, &VertexArrayID);
+    // glDeleteBuffers(1, &vertexbuffer);
+    // glDeleteBuffers(1, &elementbuffer);
+    // glDeleteBuffers(2, &particleBuffer);
+    // glDeleteProgram(programID);
+    // glDeleteProgram(programID2);
+    // glDeleteVertexArrays(1, &VertexArrayID);
+    if(vertexbuffer) glDeleteBuffers(1, &vertexbuffer);
+    if(elementbuffer) glDeleteBuffers(1, &elementbuffer);
+    if(particleBuffer) glDeleteBuffers(2, &particleBuffer);
+    if(programID) glDeleteProgram(programID);
+    if(programID2) glDeleteProgram(programID2);
+    if(VertexArrayID) glDeleteVertexArrays(1, &VertexArrayID);
+
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

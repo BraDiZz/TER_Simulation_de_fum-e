@@ -1,12 +1,18 @@
 #version 330 core
 
-// Ouput data
+in vec2 TexCoords; 
 out vec4 color;
 
 uniform vec3 c;
+uniform bool isParticle;
 
-void main(){
+uniform sampler2D particleTexture;
 
-        color =vec4(c,1.);
-
+void main() {
+//     if (isParticle) { 
+//         color = texture(particleTexture, TexCoords);
+//     } else { 
+//         color = vec4(c, 1.0);
+//     }
+        color = texture(particleTexture, TexCoords);
 }
