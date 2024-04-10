@@ -52,14 +52,19 @@ glm::mat4 CamOrbital; // cam 1
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
+float time_global = 0.0f;
 
 //rotation
 float angle = 0.;
 float zoom = 1.;
 /*******************************************************************************/
 
+std::vector<std::vector<std::vector<glm::vec3>>> gradientField;
+std::vector<std::vector<std::vector<float>>> scalarField;
+
 //variable du panneau de contrôle imgui
 float side = 1.7; //taille du cube
+int resolution=1;
 float windDirection = 0; //direction du vent, angle?
 float windStrength = 0; //force du vent
 float gravity = 0;// force de la gravité
@@ -76,6 +81,29 @@ const char *meshAvailable[] = { "Smoke","Sphère", "Chair", "Suzanne"};
 int currentMesh = 0;
 int acc=0;
 
+struct GridData {
+    // Information to store in the grid's cells
+    vec3 princ;
+    vec3 princ_normal;
+    //Mesh acc;
+    float nb;
+    std::vector<int> indice;
+
+};
+
+struct Grid {
+    std::vector<GridData> cells;
+
+    vec3 minPos, maxPos;
+    int resolution;
+
+    int getCellX(vec3 pos) { return resolution * (pos[0] - minPos[0]) / (maxPos[0] - minPos[0]); }
+    int getCellY(vec3 pos) { return resolution * (pos[1] - minPos[1]) / (maxPos[1] - minPos[1]); }
+    int getCellZ(vec3 pos) { return resolution * (pos[2] - minPos[2]) / (maxPos[2] - minPos[2]); }
+
+    int getIndex(int x, int y, int z) { return x * resolution * resolution + y * resolution + z; }
+    int getIndex(vec3 pos) { return getCellX(pos) * resolution * resolution + getCellY(pos) * resolution + getCellZ(pos); }
+};
 
 int idx(int i,int j,int nX,int nY){ // permet de connaitre l'indice dans un tableau
         return i*nY+j;
@@ -115,6 +143,144 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
     if(create==0){
         indices.clear();
         indexed_vertices.clear();
+    }
+}
+
+void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &indexed_vertices_grid, float gridSize, int resolution, int create) {
+    indices_grid.clear();
+    indexed_vertices_grid.clear();
+    
+    float cellSize = gridSize / resolution;
+
+    // Vertices
+    for (int z = 0; z <= resolution; ++z) {
+        for (int y = 0; y <= resolution; ++y) {
+            for (int x = 0; x <= resolution; ++x) {
+                indexed_vertices_grid.push_back(glm::vec3(x * cellSize - gridSize / 2.0f, y * cellSize - gridSize / 2.0f, z * cellSize - gridSize / 2.0f));
+            }
+        }
+    }
+
+    // indices_grid for horizontal lines
+    for (int z = 0; z < resolution; ++z) {
+        for (int y = 0; y < resolution; ++y) {
+            for (int x = 0; x < resolution; ++x) {
+                unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
+                indices_grid.push_back(index);
+                indices_grid.push_back(index + 1);
+            }
+        }
+    }
+
+    // indices_grid for vertical lines
+    for (int z = 0; z < resolution; ++z) {
+        for (int x = 0; x < resolution; ++x) {
+            for (int y = 0; y < resolution; ++y) {
+                unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
+                indices_grid.push_back(index);
+                indices_grid.push_back(index + (resolution + 1));
+            }
+        }
+    }
+
+    // indices_grid for depth lines
+    for (int y = 0; y < resolution; ++y) {
+        for (int x = 0; x < resolution; ++x) {
+            for (int z = 0; z < resolution; ++z) {
+                unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
+                indices_grid.push_back(index);
+                indices_grid.push_back(index + (resolution + 1) * (resolution + 1));
+            }
+        }
+    }
+
+    // Indices for closing the grid
+    for (int z = 0; z <= resolution; ++z) {
+        for (int y = 0; y <= resolution; ++y) {
+            indices_grid.push_back((resolution + 1) * (resolution + 1) * z + y * (resolution + 1));
+            indices_grid.push_back((resolution + 1) * (resolution + 1) * z + y * (resolution + 1) + resolution);
+        }
+    }
+
+    for (int z = 0; z <= resolution; ++z) {
+        for (int x = 0; x <= resolution; ++x) {
+            indices_grid.push_back((resolution + 1) * (resolution + 1) * z + x);
+            indices_grid.push_back((resolution + 1) * (resolution + 1) * z + resolution * (resolution + 1) + x);
+        }
+    }
+
+    for (int y = 0; y <= resolution; ++y) {
+        for (int x = 0; x <= resolution; ++x) {
+            indices_grid.push_back(y * (resolution + 1) + x);
+            indices_grid.push_back(resolution * (resolution + 1) * (resolution + 1) + y * (resolution + 1) + x);
+        }
+    }
+
+    if (create == 0) {
+        indices_grid.clear();
+        indexed_vertices_grid.clear();
+    }
+}
+
+void fillScalarField(std::vector<std::vector<std::vector<float>>>& scalarField, int resolution) {
+    // Réinitialisation du générateur de nombres aléatoires
+    //printf("remplissage field\n");
+    srand(time(NULL));
+
+    scalarField.resize(resolution);
+    for (int i = 0; i < resolution; ++i) {
+        scalarField[i].resize(resolution);
+        for (int j = 0; j < resolution; ++j) {
+            scalarField[i][j].resize(resolution);
+            for (int k = 0; k < resolution; ++k) {
+                // Remplissage avec des valeurs aléatoires entre 0 et 10
+                scalarField[i][j][k] = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.00003f)); //.0001f
+            }
+        }
+    }
+    
+}
+
+void calculateGradient(const std::vector<std::vector<std::vector<float>>>& scalarField, float cellSize, std::vector<std::vector<std::vector<glm::vec3>>>& gradientField) {
+    int resolution = scalarField.size();
+    // Calcul du gradient
+    gradientField.resize(resolution);
+    for (int i = 1; i < resolution - 1; ++i) {
+        //printf("allright i\n");
+        gradientField[i].resize(resolution);
+        for (int j = 1; j < resolution - 1; ++j) {
+            //printf("allright j\n");
+            gradientField[i][j].resize(resolution);
+            for (int k = 1; k < resolution - 1; ++k) {
+                //printf("allright k\n");
+                float gradientX = (scalarField[i + 1][j][k] - scalarField[i - 1][j][k]) / (2 * cellSize);
+                float gradientY = (scalarField[i][j + 1][k] - scalarField[i][j - 1][k]) / (2 * cellSize);
+                float gradientZ = (scalarField[i][j][k + 1] - scalarField[i][j][k - 1]) / (2 * cellSize);
+
+                gradientField[i][j][k] = glm::vec3(gradientX, gradientY, gradientZ);
+
+                // Pour déboguer
+                //printf("Gradient en (%d, %d, %d): (%f, %f, %f)\n", i, j, k, gradientX, gradientY, gradientZ);
+            }
+        }
+    }
+}
+
+
+void applyGradientToParticles(const std::vector<std::vector<std::vector<glm::vec3>>>& gradientField, float cellSize, const std::vector<glm::vec3> & position,std::vector<glm::vec3> & deplacement) {
+    for(int m=0;m<position.size();m++){
+        int i = static_cast<int>((position[m][0] >= 0 ? position[m][0] : -position[m][0]) / cellSize); // Utilisation de la valeur absolue pour obtenir l'indice
+        int j = static_cast<int>((position[m][1] >= 0 ? position[m][1] : -position[m][1]) / cellSize);
+        int k = static_cast<int>((position[m][2] >= 0 ? position[m][2] : -position[m][2]) / cellSize);
+        if(i >= 0 && i < gradientField.size() && j >= 0 && j < gradientField[i].size() && k >= 0 && k < gradientField[i][j].size()) {
+
+            // Obtenir le gradient de la cellule correspondante
+            glm::vec3 gradient = gradientField[i][j][k];
+
+            // Appliquer le gradient à la particule (exemple: ajuster la vitesse)
+            // Exemple: Ajuster la vitesse de la particule en fonction du gradient
+            deplacement[m] = deplacement[m] + gradient;
+        }
     }
 }
 
@@ -198,6 +364,8 @@ bool start=false;
 
 bool sphere_generate = false;
 
+float transp=100.;
+
 glm::mat4 View;
 glm::mat4 Model;
 glm::mat4 Projection;
@@ -253,6 +421,9 @@ int main( void )
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glDepthFunc(GL_LESS);
 
     // Cull triangles which normal is not towards the camera
@@ -294,11 +465,22 @@ int main( void )
     std::vector<std::vector<unsigned short> > triangles_mesh;
     std::vector<glm::vec3> indexed_vertices_mesh; // sommets
 
+    std::vector<unsigned short> indices_grid; //Triangles concaténés dans une liste
+    std::vector<std::vector<unsigned short> > triangles_grid;
+    std::vector<glm::vec3> indexed_vertices_grid; // sommets
+
     //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    Grid grid;
+    grid.resolution = resolution;
+    grid.minPos=vec3(-side,-side,-side);
+    grid.maxPos=vec3(side,side,side);
+    grid.cells.resize(pow(grid.resolution,3));
+
     
     GLuint vertexbuffer;
     GLuint elementbuffer;
     GLuint particleBuffer;
+    GLuint lifeBuffer;
     
     Particle particles;
     
@@ -323,6 +505,7 @@ int main( void )
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        time_global+=deltaTime;
 
         processInput(window);
         // Clear the screen
@@ -338,6 +521,8 @@ int main( void )
         // Create your ImGui window here
         ImGui::Begin("Panneau de contrôle");
         ImGui::SliderFloat("Taille du cube", &side, 0.01f, 4.f);
+        ImGui::SliderInt("Resolution de la grille", &resolution,1.f,30.f);
+        grid.resolution = resolution;
         static float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f }; // Initialiser à blanc
         ImGui::ColorEdit4("Color", color);
         ImGui::SliderFloat("Angle du vent", &windDirection, 0.0f, 360.0f);
@@ -347,12 +532,16 @@ int main( void )
         float arrowDirection = fmod(windDirection, 360.0f) * (3.14159265358979323846f / 180.0f); // Convertir en radians
         ImVec4 smokeColor = ImVec4(color[0], color[1], color[2], 1.0f);
         glm::vec3 windVector = DrawWindArrow(windStrength, arrowDirection,smokeColor);
+        fillScalarField(scalarField,resolution);
+        calculateGradient(scalarField,side/resolution,gradientField);
+        applyGradientToParticles(gradientField,side/resolution,particles.position,particles.deplacement);
         ImGui::Dummy(ImVec2(0.0f, 200.0f)); // Ajouter un espace vertical
         ImGui::SliderFloat("Nombre de particule", &nbParticule, 1.0f, 200.0f,"%2.f"); // à déterminer
         ImGui::SliderFloat("Vitesse d'expulsion des particules", &velocity, 0.0f, 0.03f,"%.3f"); // à déterminer
         ImGui::SliderFloat("Vitesse de cycle en ms", &cycle, 1.0f, 1000.0f); // à déterminer
         ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 1000.0f); // à déterminer
-        ImGui::SliderFloat("Taille des particules", &paticuleSize, 1.0f, 20.0f); // à déterminer
+        ImGui::SliderFloat("Taille des particules", &paticuleSize, 1.0f, 20.0f); 
+        ImGui::SliderFloat("Transparence", &transp, 20.0f, 300.0f);// à déterminer
         if (ImGui::BeginCombo("Mesh disponible", meshAvailable[currentMesh]))
             {
                 for (int i = 0; i < IM_ARRAYSIZE(meshAvailable); i++)
@@ -370,9 +559,12 @@ int main( void )
 
         ImGui::Checkbox("Montrer le cube", &isChecked);
         if (isChecked){
-            setCube(indices,indexed_vertices,side,1);
+            //setCube(indices,indexed_vertices,side,1);
+            setGrid(indices_grid,indexed_vertices_grid,side*2,grid.resolution,1);
+
         }else{
-            setCube(indices,indexed_vertices,side,0);
+            //setCube(indices,indexed_vertices,side,0);
+            setGrid(indices_grid,indexed_vertices_grid,side*2,grid.resolution,0);
         }
 
         if (ImGui::Button("Lancer la simulation")){
@@ -390,12 +582,14 @@ int main( void )
 
         glGenBuffers(1, &vertexbuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-        glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, indexed_vertices_grid.size() * sizeof(glm::vec3), &indexed_vertices_grid[0], GL_STATIC_DRAW);
         // Generate a buffer for the indices as well
         glGenBuffers(1, &elementbuffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_grid.size() * sizeof(unsigned short), &indices_grid[0] , GL_STATIC_DRAW);
         //genere de nouvelle particule tant que generate vaut true
+
+
         if(currentMesh==0){
             std::vector<Particle> acc_stock;
             if(start){
@@ -405,8 +599,7 @@ int main( void )
                     particles.baseVelocity.push_back(velocity);
                     particles.deplacement.push_back(generate_deplacement());
                 }
-            }
-            int taille_prov=particles.position.size();
+                int taille_prov=particles.position.size();
             for (int i = 0; i < taille_prov; ++i) {
                 particles.life[i]=particles.life[i]-1;
                 if(particles.life[i]>0){
@@ -425,6 +618,8 @@ int main( void )
                     //particles.life[i]=lifeglobal;
                 }
             }
+            }
+            
             /*
             particles.clear();
             particles.resize(acc_stock.size());
@@ -546,6 +741,23 @@ int main( void )
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
         glBufferSubData(GL_ARRAY_BUFFER, 0, particles.position.size() * sizeof(glm::vec3), &particles.position[0]);
         //glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Particle), particles.data(), GL_DYNAMIC_DRAW);
+
+        /*
+        int life_taille=particles.life.size();
+        float life_acc[life_taille];
+        for(int i=0;i<life_taille;++i){
+            life_acc[i]=particles.life[i];
+            cout<<particles.life[i];
+        }*/
+
+        glGenBuffers(2, &lifeBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, lifeBuffer);
+        glBufferData(GL_ARRAY_BUFFER, particles.life.size() * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, lifeBuffer);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, particles.life.size() * sizeof(float), &particles.life[0]);
+
+
         Model = glm::mat4(1.f);
         View = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
         Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -578,7 +790,7 @@ int main( void )
         // Draw the triangles !
         glDrawElements(
                     GL_LINES,      // mode
-                    indices.size(),    // count
+                    indices_grid.size(),    // count
                     GL_UNSIGNED_SHORT,   // type
                     (void*)0           // element array buffer offset
                     );
@@ -589,10 +801,13 @@ int main( void )
 
         glUseProgram(programID);
 
+        /*
         GLint isParticle = glGetUniformLocation(programID, "isParticle");
         glUniform1i(isParticle, GL_TRUE); 
-
+        */
         glUniform3f(glGetUniformLocation(programID,"c"),smokeColor.x,smokeColor.y,smokeColor.z);
+        glUniform1f(glGetUniformLocation(programID,"transp"),transp);
+
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
         glVertexAttribPointer(
@@ -604,13 +819,31 @@ int main( void )
             (void*)0       // array buffer offset
         );
         glPointSize(paticuleSize);
+
+        //benmodif
+        glUniform1i(glGetUniformLocation(programID,"size_p"),paticuleSize);
+        glUniform1f(glGetUniformLocation(programID,"time"),time_global);
+
         // Draw the particle
         glDrawArrays(GL_POINTS, 0, particles.position.size());
         //glDrawArrays(GL_POINTS, 0, 1);
-        glDisableVertexAttribArray(0);
+        //glDisableVertexAttribArray(0);
 
-        glUniform1i(isParticle, GL_FALSE); 
+       //glUniform1i(isParticle, GL_FALSE); 
 
+        
+        
+
+        // Liez le buffer à l'attribut de votre shader
+        GLuint lifeAttributeLocation = glGetAttribLocation(programID, "life");
+        glEnableVertexAttribArray(lifeAttributeLocation);
+        glBindBuffer(GL_ARRAY_BUFFER, lifeBuffer);
+        glVertexAttribPointer(lifeAttributeLocation, 1, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+        //glDisableVertexAttribArray(lifeAttributeLocation);
+
+
+        glDrawArrays(GL_POINTS, 0, particles.position.size());
 
         ImGui::Render();
         int display_w, display_h;
@@ -637,9 +870,11 @@ int main( void )
     if(vertexbuffer) glDeleteBuffers(1, &vertexbuffer);
     if(elementbuffer) glDeleteBuffers(1, &elementbuffer);
     if(particleBuffer) glDeleteBuffers(2, &particleBuffer);
+    if(lifeBuffer) glDeleteBuffers(2, &lifeBuffer);
     if(programID) glDeleteProgram(programID);
     if(programID2) glDeleteProgram(programID2);
     if(VertexArrayID) glDeleteVertexArrays(1, &VertexArrayID);
+
 
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();

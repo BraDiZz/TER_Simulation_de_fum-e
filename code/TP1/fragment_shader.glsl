@@ -1,18 +1,24 @@
 #version 330 core
 
+in float fragment_life;
 in vec2 TexCoords; 
 out vec4 color;
 
 uniform vec3 c;
-uniform bool isParticle;
-
 uniform sampler2D particleTexture;
+uniform float transp;
+
 
 void main() {
-//     if (isParticle) { 
-//         color = texture(particleTexture, TexCoords);
-//     } else { 
-//         color = vec4(c, 1.0);
-//     }
-        color = texture(particleTexture, TexCoords);
+    vec4 coloracc = texture(particleTexture, TexCoords);
+
+
+    float transparency = 1.0 - (1.0 / (fragment_life/transp)); 
+    
+    color = vec4(coloracc.rgb * c, coloracc.a * transparency);
+    //color = vec4(vec3(1.,1.,1.) * c,transparency);
+
+
 }
+
+
