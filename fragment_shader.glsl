@@ -1,15 +1,23 @@
 #version 330 core
 
-// Ouput data
+in float fragment_life;
+in vec2 TexCoords; 
 out vec4 color;
 
 uniform vec3 c;
+uniform sampler2D particleTexture;
+uniform float transp;
 
-uniform sampler2D text;
 
-in vec2 uv2;
+void main() {
+    vec4 coloracc = texture(particleTexture, TexCoords);
 
-void main(){
-        // color =vec4(c,1.);
-        color = texture(text,uv2);
+
+    // float transparency = 1.0 - (1.0 / (fragment_life/transp)); 
+    float transparency = exp(-fragment_life / transp);
+    
+    color = vec4(coloracc.rgb * c, coloracc.a * transparency);
+    //color = vec4(vec3(1.,1.,1.) * c,transparency);
 }
+
+
