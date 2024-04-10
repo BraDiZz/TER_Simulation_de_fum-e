@@ -423,6 +423,7 @@ int main( void )
     // Accept fragment if it closer to the camera than the former one
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     glDepthFunc(GL_LESS);
 
@@ -801,10 +802,6 @@ int main( void )
 
         glUseProgram(programID);
 
-        /*
-        GLint isParticle = glGetUniformLocation(programID, "isParticle");
-        glUniform1i(isParticle, GL_TRUE); 
-        */
         glUniform3f(glGetUniformLocation(programID,"c"),smokeColor.x,smokeColor.y,smokeColor.z);
         glUniform1f(glGetUniformLocation(programID,"transp"),transp);
 
@@ -822,14 +819,9 @@ int main( void )
 
         //benmodif
         glUniform1i(glGetUniformLocation(programID,"size_p"),paticuleSize);
-        glUniform1f(glGetUniformLocation(programID,"time"),time_global);
 
         // Draw the particle
         glDrawArrays(GL_POINTS, 0, particles.position.size());
-        //glDrawArrays(GL_POINTS, 0, 1);
-        //glDisableVertexAttribArray(0);
-
-       //glUniform1i(isParticle, GL_FALSE); 
 
         
         

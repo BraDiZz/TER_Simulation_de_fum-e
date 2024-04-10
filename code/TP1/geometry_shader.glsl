@@ -11,7 +11,6 @@ out vec2 TexCoords;
 
 uniform int size_p;
 
-uniform float time;
 
 void main() {
     fragment_life=vertex_life[0];
@@ -20,31 +19,51 @@ void main() {
     float size = 0.01*size_p; // size of the quad
 
     //vec2 texCoordOffset = pos.xy * 0.5 + 0.5;
-    vec2 texCoordOffset = pos.xy;
+    //vec2 texCoordOffset = pos.xy;
 
+    vec2 texCoordOffset = vec2(0.,0.);
+    
     /*
-    //temps de déplacemrnt
-    float offsetX = time * 0.1; // Adjust speed here
-    float offsetY = time * -1; // Adjust speed here
-    vec2 texCoordOffset = vec2(pos.x + offsetX, pos.y + offsetY);*/
-
     gl_Position = pos + vec4(-size, -size, 0.0, 0.0);
     TexCoords = texCoordOffset + vec2(0.0, 0.0);
     EmitVertex();
 
     gl_Position = pos + vec4(size, -size, 0.0, 0.0);
-    TexCoords = texCoordOffset + vec2(1.0, 0.0);
+    TexCoords = texCoordOffset + vec2(0.2, 0.0);
     EmitVertex();
 
     gl_Position = pos + vec4(-size, size, 0.0, 0.0);
-    TexCoords = texCoordOffset + vec2(0.0, 1.0);
+    TexCoords = texCoordOffset + vec2(0.0, 0.2);
     EmitVertex();
 
     gl_Position = pos + vec4(size, size, 0.0, 0.0);
-    TexCoords = texCoordOffset + vec2(1.0, 1.0);
+    TexCoords = texCoordOffset + vec2(0.2, 0.2);
     EmitVertex();
 
     EndPrimitive();
+    */
+
+
+     
+    gl_Position = pos + vec4(-size, -size, 0.0, 0.0);
+    TexCoords = texCoordOffset + vec2(0.0, 0.0);
+    EmitVertex();
+
+    gl_Position = pos + vec4(size, -size, 0.0, 0.0);
+    TexCoords = texCoordOffset + vec2(1, 0.0);
+    EmitVertex();
+
+    gl_Position = pos + vec4(-size, size, 0.0, 0.0);
+    TexCoords = texCoordOffset + vec2(0.0, 1);
+    EmitVertex();
+
+    gl_Position = pos + vec4(size, size, 0.0, 0.0);
+    TexCoords = texCoordOffset + vec2(1, 1);
+    EmitVertex();
+
+    EndPrimitive();
+
+
 }
 
 
