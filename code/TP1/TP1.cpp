@@ -1,25 +1,23 @@
-// Include standard headers
 #include <stdio.h>
 #include <cstdlib>
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
 #include <random>
-// Include GLEW
+
 #include <GL/glew.h>
-// Include GLFW
 #include <GLFW/glfw3.h>
 GLFWwindow* window;
 
 using namespace std;
+using namespace glm;
 
-// Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <limits>
+#include <map>
 
-using namespace glm;
 
 #include <common/shader.hpp>
 #include <common/objloader.hpp>
@@ -37,7 +35,6 @@ using namespace glm;
 
 void processInput(GLFWwindow *window);
 
-// settings
 const unsigned int SCR_WIDTH = 1300;
 const unsigned int SCR_HEIGHT = 800;
 
@@ -148,10 +145,8 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
 
 void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &indexed_vertices_grid, float gridSize, int resolution, int create) {
     indices_grid.clear();
-    indexed_vertices_grid.clear();
-    
+    indexed_vertices_grid.clear();    
     float cellSize = gridSize / resolution;
-
     // Vertices
     for (int z = 0; z <= resolution; ++z) {
         for (int y = 0; y <= resolution; ++y) {
@@ -160,7 +155,6 @@ void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &
             }
         }
     }
-
     // indices_grid for horizontal lines
     for (int z = 0; z < resolution; ++z) {
         for (int y = 0; y < resolution; ++y) {
@@ -171,7 +165,6 @@ void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &
             }
         }
     }
-
     // indices_grid for vertical lines
     for (int z = 0; z < resolution; ++z) {
         for (int x = 0; x < resolution; ++x) {
@@ -182,7 +175,6 @@ void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &
             }
         }
     }
-
     // indices_grid for depth lines
     for (int y = 0; y < resolution; ++y) {
         for (int x = 0; x < resolution; ++x) {
@@ -193,7 +185,6 @@ void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &
             }
         }
     }
-
     // Indices for closing the grid
     for (int z = 0; z <= resolution; ++z) {
         for (int y = 0; y <= resolution; ++y) {
@@ -201,21 +192,18 @@ void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &
             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + y * (resolution + 1) + resolution);
         }
     }
-
     for (int z = 0; z <= resolution; ++z) {
         for (int x = 0; x <= resolution; ++x) {
             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + x);
             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + resolution * (resolution + 1) + x);
         }
     }
-
     for (int y = 0; y <= resolution; ++y) {
         for (int x = 0; x <= resolution; ++x) {
             indices_grid.push_back(y * (resolution + 1) + x);
             indices_grid.push_back(resolution * (resolution + 1) * (resolution + 1) + y * (resolution + 1) + x);
         }
     }
-
     if (create == 0) {
         indices_grid.clear();
         indexed_vertices_grid.clear();
@@ -240,7 +228,6 @@ void fillScalarField(std::vector<std::vector<std::vector<float>>>& scalarField, 
     }
     
 }
-
 void calculateGradient(const std::vector<std::vector<std::vector<float>>>& scalarField, float cellSize, std::vector<std::vector<std::vector<glm::vec3>>>& gradientField) {
     int resolution = scalarField.size();
     // Calcul du gradient
@@ -265,8 +252,6 @@ void calculateGradient(const std::vector<std::vector<std::vector<float>>>& scala
         }
     }
 }
-
-
 void applyGradientToParticles(const std::vector<std::vector<std::vector<glm::vec3>>>& gradientField, float cellSize, const std::vector<glm::vec3> & position,std::vector<glm::vec3> & deplacement) {
     for(int m=0;m<position.size();m++){
         int i = static_cast<int>((position[m][0] >= 0 ? position[m][0] : -position[m][0]) / cellSize); // Utilisation de la valeur absolue pour obtenir l'indice
@@ -284,12 +269,10 @@ void applyGradientToParticles(const std::vector<std::vector<std::vector<glm::vec
     }
 }
 
-
 vec3 generate_deplacement(){
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dis(-2.0f, 2.0f);
-
     std::uniform_real_distribution<float> dis2(1.0f, 10.0f);
     float y=0.0005f*dis2(gen);
     float z=0.f;
@@ -297,33 +280,24 @@ vec3 generate_deplacement(){
     while(x==0){
         x=dis(gen)*0.001;
     }
-
     return vec3(x,y,z);
 }
-
 vec3 generate_position(){
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dis(-10.0f, 10.0f);
-
     float y=-2.;
     float x=dis(gen)*0.01;
     float z=dis(gen)*0.01;
     return vec3(x,y,z);
 }
-
-//std::numeric_limits<float>::max();
-//std::numeric_limits<float>::min();
-
 float min_float(float a, float b){
     if(a<b){
         return a;
     }else{
         return b;
     }
-
 }
-
 float max_float(float a , float b){
     if(a>b){
         return a;
@@ -331,7 +305,6 @@ float max_float(float a , float b){
         return b;
     }
 }
-
 vec3 generate_triangle(vec3 a, vec3 b, vec3 c){
     float Xmax,Xmin,Ymax,Ymin,Zmax,Zmin;
     Xmax=max_float(a[0],max_float(b[0],c[0]));
@@ -340,13 +313,11 @@ vec3 generate_triangle(vec3 a, vec3 b, vec3 c){
     Ymin=min_float(a[1],min_float(b[1],c[1]));
     Zmax=max_float(a[2],max_float(b[2],c[2]));
     Zmin=min_float(a[2],min_float(b[2],c[2]));
-
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> disx(Xmin, Xmax);
     std::uniform_real_distribution<float> disy(Ymin, Ymax);
     std::uniform_real_distribution<float> disz(Zmin, Zmax);
-
     return vec3(disx(gen),disy(gen),disz(gen));
 }
 
@@ -359,12 +330,40 @@ struct Particle{
     std::vector<float> baseVelocity;
 };
 
-
 bool start=false;
-
 bool sphere_generate = false;
-
 float transp=100.;
+
+void tri_profondeur(Particle &p){
+    map<float,vec3> sorted_pos;
+    map<float,float> sorted_life;
+    map<float,vec3> sorted_dep;
+    map<float,float> sorted_vel;
+    int t=p.position.size();
+    for(int i=0;i<t;++i){
+        float dist=length(camera_position-p.position[i]);
+        sorted_pos[dist]=p.position[i];
+        sorted_life[dist]=p.life[i];
+        sorted_dep[dist]=p.deplacement[i];
+        sorted_vel[dist]=p.baseVelocity[i];
+    }
+    p.position.clear();
+    p.life.clear();
+    p.deplacement.clear();
+    p.baseVelocity.clear();
+    for(std::map<float,glm::vec3>::reverse_iterator it = sorted_pos.rbegin(); it != sorted_pos.rend(); ++it){
+        p.position.push_back(it->second);
+    }
+    for(std::map<float,float>::reverse_iterator it = sorted_life.rbegin(); it != sorted_life.rend(); ++it){
+        p.life.push_back(it->second);
+    }
+    for(std::map<float,glm::vec3>::reverse_iterator it = sorted_dep.rbegin(); it != sorted_dep.rend(); ++it){
+        p.deplacement.push_back(it->second);
+    }
+    for(std::map<float,float>::reverse_iterator it = sorted_vel.rbegin(); it != sorted_vel.rend(); ++it){
+        p.baseVelocity.push_back(it->second);
+    }
+}
 
 glm::mat4 View;
 glm::mat4 Model;
@@ -397,7 +396,7 @@ int main( void )
     }
     glfwMakeContextCurrent(window);
 
-    // Initialize GLEW
+
     glewExperimental = true; // Needed for core profile
     if (glewInit() != GLEW_OK) {
         fprintf(stderr, "Failed to initialize GLEW\n");
@@ -406,28 +405,16 @@ int main( void )
         return -1;
     }
 
-    // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    // Hide the mouse and enable unlimited mouvement
-    //  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    // Set the mouse at the center of the screen
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE); 
     glfwPollEvents();
     glfwSetCursorPos(window, SCR_WIDTH/2, SCR_HEIGHT/2);
-
-    // Dark blue background
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-    // Enable depth test
     glEnable(GL_DEPTH_TEST);
-    // Accept fragment if it closer to the camera than the former one
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
     glDepthFunc(GL_LESS);
 
-    // Cull triangles which normal is not towards the camera
     //glEnable(GL_CULL_FACE);
 
     GLuint VertexArrayID;
@@ -441,11 +428,6 @@ int main( void )
     GLuint smoke = loadTexture2DFromFilePath("../textures/smoke.png");
 
 
-    //Chargement du fichier de maillage
-    //std::string filename("chair.off");
-    //loadOFF(filename, indexed_vertices, indices, triangles );
-
-    // Load it into a VBO
 
     int M = glGetUniformLocation(programID,"ModelMatrix");
     int V = glGetUniformLocation(programID, "ViewMatrix");
@@ -485,7 +467,6 @@ int main( void )
     
     Particle particles;
     
-    // GLint isParticle = glGetUniformLocation(programID, "isParticle");
 
     glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
@@ -493,10 +474,8 @@ int main( void )
     glUseProgram(programID2);
     GLuint LightID2 = glGetUniformLocation(programID2, "LightPosition_worldspace");
     
-    // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
-    // Setup ImGui binding
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -509,17 +488,12 @@ int main( void )
         time_global+=deltaTime;
 
         processInput(window);
-        // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // Use our shader
-        // glUseProgram(programID);
         glfwPollEvents();
-        // Start the ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.8f, 0.0f, 0.8f, 0.75f)); // changer la couleur du fond de la fenêtre imgui
-        // Create your ImGui window here
         ImGui::Begin("Panneau de contrôle");
         ImGui::SliderFloat("Taille du cube", &side, 0.01f, 4.f);
         ImGui::SliderInt("Resolution de la grille", &resolution,1.f,30.f);
@@ -550,8 +524,6 @@ int main( void )
                     bool isSelected = (currentMesh== i);
                     if (ImGui::Selectable(meshAvailable[i], isSelected))
                         currentMesh = i;
-
-                    // Si l'option est sélectionnée, définissez le focus pour que la liste déroulante se ferme immédiatement
                     if (isSelected)
                         ImGui::SetItemDefaultFocus();
                 }
@@ -569,7 +541,6 @@ int main( void )
         }
 
         if (ImGui::Button("Lancer la simulation")){
-            //printf("Le bouton a été cliqué !\n");
             start=!start;
         }
         if(start){
@@ -584,11 +555,11 @@ int main( void )
         glGenBuffers(1, &vertexbuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glBufferData(GL_ARRAY_BUFFER, indexed_vertices_grid.size() * sizeof(glm::vec3), &indexed_vertices_grid[0], GL_STATIC_DRAW);
-        // Generate a buffer for the indices as well
+
         glGenBuffers(1, &elementbuffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_grid.size() * sizeof(unsigned short), &indices_grid[0] , GL_STATIC_DRAW);
-        //genere de nouvelle particule tant que generate vaut true
+
 
 
         if(currentMesh==0){
@@ -608,25 +579,17 @@ int main( void )
                     particles.position[i] += windVector;
                     particles.position[i] += vec3(0,particles.baseVelocity[i],0);
                     particles.baseVelocity[i] += gravityVector.y;
-                    //acc_stock.push_back(particles[i]);
                 }else{
                         
                     particles.position.erase(particles.position.begin()+i);
                     particles.deplacement.erase(particles.deplacement.begin()+i);
                     particles.life.erase(particles.life.begin()+i);
                     particles.baseVelocity.erase(particles.baseVelocity.begin()+i);
-                    //particles.position[i]=generate_position();
-                    //particles.life[i]=lifeglobal;
                 }
             }
             }
             
-            /*
-            particles.clear();
-            particles.resize(acc_stock.size());
-            for(int i=0;i<acc_stock.size();i++){
-                particles[i]=acc_stock[i];
-            }*/
+            
         }
         /*
         if(currentMesh==1){
@@ -733,23 +696,19 @@ int main( void )
 
         GLuint textureLocation = glGetUniformLocation(programID, "particleTexture");
         glUniform1i(textureLocation, 0); 
-         
-        
+            
+
+
+        //permet d'ordonner en fonction de la profondeur     
+        tri_profondeur(particles);
+
         glGenBuffers(2, &particleBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
         glBufferData(GL_ARRAY_BUFFER, particles.position.size() * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
-       // Mettre à jour les données des particules
+
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
         glBufferSubData(GL_ARRAY_BUFFER, 0, particles.position.size() * sizeof(glm::vec3), &particles.position[0]);
-        //glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Particle), particles.data(), GL_DYNAMIC_DRAW);
 
-        /*
-        int life_taille=particles.life.size();
-        float life_acc[life_taille];
-        for(int i=0;i<life_taille;++i){
-            life_acc[i]=particles.life[i];
-            cout<<particles.life[i];
-        }*/
 
         glGenBuffers(2, &lifeBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, lifeBuffer);
@@ -762,8 +721,6 @@ int main( void )
         Model = glm::mat4(1.f);
         View = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
         Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        // Send our transformation to the currently bound shader,
-        // in the "Model View Projection" to the shader uniforms.
         glUniformMatrix4fv(M, 1, GL_FALSE, &Model[0][0]);
         glUniformMatrix4fv(V, 1, GL_FALSE, &View[0][0]);
         glUniformMatrix4fv(P, 1, GL_FALSE, &Projection[0][0]);
@@ -785,10 +742,8 @@ int main( void )
                     (void*)0            // array buffer offset
                     );
 
-        // Index buffer
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
-        // Draw the triangles !
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
         glDrawElements(
                     GL_LINES,      // mode
                     indices_grid.size(),    // count
@@ -797,8 +752,6 @@ int main( void )
                     );
 
         glDisableVertexAttribArray(0);
-
-        // glUseProgram(0);
 
         glUseProgram(programID);
 
@@ -817,23 +770,14 @@ int main( void )
         );
         glPointSize(paticuleSize);
 
-        //benmodif
+
         glUniform1i(glGetUniformLocation(programID,"size_p"),paticuleSize);
 
-        // Draw the particle
-        glDrawArrays(GL_POINTS, 0, particles.position.size());
-
-        
-        
-
-        // Liez le buffer à l'attribut de votre shader
+    
         GLuint lifeAttributeLocation = glGetAttribLocation(programID, "life");
         glEnableVertexAttribArray(lifeAttributeLocation);
         glBindBuffer(GL_ARRAY_BUFFER, lifeBuffer);
         glVertexAttribPointer(lifeAttributeLocation, 1, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-        //glDisableVertexAttribArray(lifeAttributeLocation);
-
 
         glDrawArrays(GL_POINTS, 0, particles.position.size());
 
@@ -841,24 +785,13 @@ int main( void )
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
-        //glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
-        //glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     
-        // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     } // Check if the ESC key was pressed or the window was closed
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0 );
-
-    // Cleanup VBO and shader
-    // glDeleteBuffers(1, &vertexbuffer);
-    // glDeleteBuffers(1, &elementbuffer);
-    // glDeleteBuffers(2, &particleBuffer);
-    // glDeleteProgram(programID);
-    // glDeleteProgram(programID2);
-    // glDeleteVertexArrays(1, &VertexArrayID);
     if(vertexbuffer) glDeleteBuffers(1, &vertexbuffer);
     if(elementbuffer) glDeleteBuffers(1, &elementbuffer);
     if(particleBuffer) glDeleteBuffers(2, &particleBuffer);
@@ -866,14 +799,10 @@ int main( void )
     if(programID) glDeleteProgram(programID);
     if(programID2) glDeleteProgram(programID2);
     if(VertexArrayID) glDeleteVertexArrays(1, &VertexArrayID);
-
-
-    // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    // Close OpenGL window and terminate GLFW
     glfwTerminate();
 
     return 0;
@@ -885,32 +814,11 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    //Camera zoom in and out
     float cameraSpeed = 2.5 * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
         camera_position += cameraSpeed * camera_target;
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
         camera_position -= cameraSpeed * camera_target;
-    //rotation qui marche
-    //     float Translate = 0.0;
-    //     float rotateX = 0.1;
-    //     float rotateY = 0.1;
-
-    //     glm::mat4 ViewTranslate = glm::translate(
-    //         glm::mat4(1.0f),
-    //         glm::vec3(0.0f, 0.0f, -Translate)
-    //     );
-    //     glm::mat4 ViewRotateX = glm::rotate(
-    //         ViewTranslate,
-    //         rotateY,
-    //         glm::vec3(-1.0f, 0.0f, 0.0f)
-    //     );
-    //     View *= glm::rotate(
-    //         ViewRotateX,
-    //         rotateX,
-    //         glm::vec3(0.0f, 1.0f, 0.0f)
-    //     );
-    // }
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
