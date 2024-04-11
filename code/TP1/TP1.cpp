@@ -1,23 +1,26 @@
+// Include standard headers
 #include <stdio.h>
 #include <cstdlib>
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
 #include <random>
-
+// Include GLEW
 #include <GL/glew.h>
+// Include GLFW
 #include <GLFW/glfw3.h>
 GLFWwindow* window;
 
 using namespace std;
-using namespace glm;
 
+// Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <limits>
 #include <map>
 
+using namespace glm;
 
 #include <common/shader.hpp>
 #include <common/objloader.hpp>
@@ -35,6 +38,7 @@ using namespace glm;
 
 void processInput(GLFWwindow *window);
 
+// settings
 const unsigned int SCR_WIDTH = 1300;
 const unsigned int SCR_HEIGHT = 800;
 
@@ -67,7 +71,7 @@ float windStrength = 0; //force du vent
 float gravity = 0;// force de la gravité
 float lifeTime = 350.f; // durée de vie d'une particule en seconde
 float nbParticule = 40.f;// nombre de particule
-float paticuleSize = 8.f;
+float paticuleSize = 18.f;
 float cycle = 0.001; // cycle d'apparition des particules
 float velocity = 0.01f;
 float oscillationX = 0.f;
@@ -145,8 +149,10 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
 
 void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &indexed_vertices_grid, float gridSize, int resolution, int create) {
     indices_grid.clear();
-    indexed_vertices_grid.clear();    
+    indexed_vertices_grid.clear();
+    
     float cellSize = gridSize / resolution;
+
     // Vertices
     for (int z = 0; z <= resolution; ++z) {
         for (int y = 0; y <= resolution; ++y) {
@@ -155,6 +161,7 @@ void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &
             }
         }
     }
+
     // indices_grid for horizontal lines
     for (int z = 0; z < resolution; ++z) {
         for (int y = 0; y < resolution; ++y) {
@@ -165,6 +172,7 @@ void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &
             }
         }
     }
+
     // indices_grid for vertical lines
     for (int z = 0; z < resolution; ++z) {
         for (int x = 0; x < resolution; ++x) {
@@ -175,6 +183,7 @@ void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &
             }
         }
     }
+
     // indices_grid for depth lines
     for (int y = 0; y < resolution; ++y) {
         for (int x = 0; x < resolution; ++x) {
@@ -185,6 +194,7 @@ void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &
             }
         }
     }
+
     // Indices for closing the grid
     for (int z = 0; z <= resolution; ++z) {
         for (int y = 0; y <= resolution; ++y) {
@@ -192,18 +202,21 @@ void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &
             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + y * (resolution + 1) + resolution);
         }
     }
+
     for (int z = 0; z <= resolution; ++z) {
         for (int x = 0; x <= resolution; ++x) {
             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + x);
             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + resolution * (resolution + 1) + x);
         }
     }
+
     for (int y = 0; y <= resolution; ++y) {
         for (int x = 0; x <= resolution; ++x) {
             indices_grid.push_back(y * (resolution + 1) + x);
             indices_grid.push_back(resolution * (resolution + 1) * (resolution + 1) + y * (resolution + 1) + x);
         }
     }
+
     if (create == 0) {
         indices_grid.clear();
         indexed_vertices_grid.clear();
@@ -228,6 +241,7 @@ void fillScalarField(std::vector<std::vector<std::vector<float>>>& scalarField, 
     }
     
 }
+
 void calculateGradient(const std::vector<std::vector<std::vector<float>>>& scalarField, float cellSize, std::vector<std::vector<std::vector<glm::vec3>>>& gradientField) {
     int resolution = scalarField.size();
     // Calcul du gradient
@@ -252,6 +266,8 @@ void calculateGradient(const std::vector<std::vector<std::vector<float>>>& scala
         }
     }
 }
+
+
 void applyGradientToParticles(const std::vector<std::vector<std::vector<glm::vec3>>>& gradientField, float cellSize, const std::vector<glm::vec3> & position,std::vector<glm::vec3> & deplacement) {
     for(int m=0;m<position.size();m++){
         int i = static_cast<int>((position[m][0] >= 0 ? position[m][0] : -position[m][0]) / cellSize); // Utilisation de la valeur absolue pour obtenir l'indice
@@ -269,10 +285,12 @@ void applyGradientToParticles(const std::vector<std::vector<std::vector<glm::vec
     }
 }
 
+
 vec3 generate_deplacement(){
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dis(-2.0f, 2.0f);
+
     std::uniform_real_distribution<float> dis2(1.0f, 10.0f);
     float y=0.0005f*dis2(gen);
     float z=0.f;
@@ -280,24 +298,33 @@ vec3 generate_deplacement(){
     while(x==0){
         x=dis(gen)*0.001;
     }
+
     return vec3(x,y,z);
 }
+
 vec3 generate_position(){
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dis(-10.0f, 10.0f);
+
     float y=-2.;
     float x=dis(gen)*0.01;
     float z=dis(gen)*0.01;
     return vec3(x,y,z);
 }
+
+//std::numeric_limits<float>::max();
+//std::numeric_limits<float>::min();
+
 float min_float(float a, float b){
     if(a<b){
         return a;
     }else{
         return b;
     }
+
 }
+
 float max_float(float a , float b){
     if(a>b){
         return a;
@@ -305,6 +332,7 @@ float max_float(float a , float b){
         return b;
     }
 }
+
 vec3 generate_triangle(vec3 a, vec3 b, vec3 c){
     float Xmax,Xmin,Ymax,Ymin,Zmax,Zmin;
     Xmax=max_float(a[0],max_float(b[0],c[0]));
@@ -313,11 +341,13 @@ vec3 generate_triangle(vec3 a, vec3 b, vec3 c){
     Ymin=min_float(a[1],min_float(b[1],c[1]));
     Zmax=max_float(a[2],max_float(b[2],c[2]));
     Zmin=min_float(a[2],min_float(b[2],c[2]));
+
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> disx(Xmin, Xmax);
     std::uniform_real_distribution<float> disy(Ymin, Ymax);
     std::uniform_real_distribution<float> disz(Zmin, Zmax);
+
     return vec3(disx(gen),disy(gen),disz(gen));
 }
 
@@ -330,9 +360,21 @@ struct Particle{
     std::vector<float> baseVelocity;
 };
 
+
 bool start=false;
+
 bool sphere_generate = false;
+
 float transp=100.;
+
+
+void nettoyage(Particle &p){
+    p.position.clear();
+    p.life.clear();
+    p.deplacement.clear();
+    p.baseVelocity.clear();
+}
+
 
 void tri_profondeur(Particle &p){
     map<float,vec3> sorted_pos;
@@ -347,10 +389,9 @@ void tri_profondeur(Particle &p){
         sorted_dep[dist]=p.deplacement[i];
         sorted_vel[dist]=p.baseVelocity[i];
     }
-    p.position.clear();
-    p.life.clear();
-    p.deplacement.clear();
-    p.baseVelocity.clear();
+
+    nettoyage(p);
+
     for(std::map<float,glm::vec3>::reverse_iterator it = sorted_pos.rbegin(); it != sorted_pos.rend(); ++it){
         p.position.push_back(it->second);
     }
@@ -363,7 +404,9 @@ void tri_profondeur(Particle &p){
     for(std::map<float,float>::reverse_iterator it = sorted_vel.rbegin(); it != sorted_vel.rend(); ++it){
         p.baseVelocity.push_back(it->second);
     }
+
 }
+
 
 glm::mat4 View;
 glm::mat4 Model;
@@ -426,6 +469,7 @@ int main( void )
     GLuint programID2 = LoadShaders( "vertexCube.glsl", "fragmentCube.glsl");
 
     GLuint smoke = loadTexture2DFromFilePath("../textures/smoke.png");
+    GLuint smoke2 = loadTexture2DFromFilePath("../textures/smoke2.png");
 
 
 
@@ -515,7 +559,7 @@ int main( void )
         ImGui::SliderFloat("Vitesse d'expulsion des particules", &velocity, 0.0f, 0.03f,"%.3f"); // à déterminer
         ImGui::SliderFloat("Vitesse de cycle en ms", &cycle, 1.0f, 1000.0f); // à déterminer
         ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 1000.0f); // à déterminer
-        ImGui::SliderFloat("Taille des particules", &paticuleSize, 1.0f, 20.0f); 
+        ImGui::SliderFloat("Taille des particules", &paticuleSize, 1.0f, 40.0f); 
         ImGui::SliderFloat("Transparence", &transp, 20.0f, 300.0f);// à déterminer
         if (ImGui::BeginCombo("Mesh disponible", meshAvailable[currentMesh]))
             {
@@ -570,7 +614,8 @@ int main( void )
                     particles.life.push_back(lifeTime);
                     particles.baseVelocity.push_back(velocity);
                     particles.deplacement.push_back(generate_deplacement());
-                }
+                }            
+            }
                 int taille_prov=particles.position.size();
             for (int i = 0; i < taille_prov; ++i) {
                 particles.life[i]=particles.life[i]-1;
@@ -587,30 +632,29 @@ int main( void )
                     particles.baseVelocity.erase(particles.baseVelocity.begin()+i);
                 }
             }
-            }
             
             
         }
-        /*
+        
         if(currentMesh==1){
             indexed_vertices_mesh.clear();
             indices_mesh.clear();
             loadOFF("./data/sphere.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
-            if(generate && !sphere_generate){
-                particles.clear();
-                particles.resize(indexed_vertices_mesh.size());
+            if(start && !sphere_generate){
+                nettoyage(particles);
+                /*
                 for(int i=0;i<indexed_vertices_mesh.size();i++){
-                    particles[i].position=indexed_vertices_mesh[i];
-                }
-
+                    particles.position.push_back(indexed_vertices_mesh[i]);
+                    particles.life.push_back(350.);
+                }*/
+                
                 for(int i=0;i<indices_mesh.size();i+=3){
                     vec3 x=indexed_vertices_mesh[indices_mesh[i]];
                     vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
                     vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
                     for(int j=0;j<nbParticule;j++){
-                        Particle acc;
-                        acc.position=generate_triangle(x,y,z);
-                        particles.push_back(acc);
+                        vec3 acc=generate_triangle(x,y,z);
+                        particles.position.push_back(acc);
                     }
                 }
 
@@ -618,13 +662,77 @@ int main( void )
 
             }else{
                 if(!start){
-                    particles.clear();
-                    sphere_start=false;
+                    nettoyage(particles);
+                    sphere_generate=false;
                 }
                 
             }
         }
+        if(currentMesh==2){
+            indexed_vertices_mesh.clear();
+            indices_mesh.clear();
+            loadOFF("./data/chair.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
+            if(start && !sphere_generate){
+                nettoyage(particles);
+                /*
+                for(int i=0;i<indexed_vertices_mesh.size();i++){
+                    particles.position.push_back(indexed_vertices_mesh[i]);
+                    particles.life.push_back(350.);
+                }*/
+                
+                for(int i=0;i<indices_mesh.size();i+=3){
+                    vec3 x=indexed_vertices_mesh[indices_mesh[i]];
+                    vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
+                    vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
+                    for(int j=0;j<nbParticule;j++){
+                        vec3 acc=generate_triangle(x,y,z);
+                        particles.position.push_back(acc);
+                    }
+                }
 
+            sphere_generate=true;
+
+            }else{
+                if(!start){
+                    nettoyage(particles);
+                    sphere_generate=false;
+                }
+                
+            }
+        }
+        if(currentMesh==3){
+            indexed_vertices_mesh.clear();
+            indices_mesh.clear();
+            loadOFF("./data/suzanne.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
+            if(start && !sphere_generate){
+                nettoyage(particles);
+                /*
+                for(int i=0;i<indexed_vertices_mesh.size();i++){
+                    particles.position.push_back(indexed_vertices_mesh[i]);
+                    particles.life.push_back(350.);
+                }*/
+                
+                for(int i=0;i<indices_mesh.size();i+=3){
+                    vec3 x=indexed_vertices_mesh[indices_mesh[i]];
+                    vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
+                    vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
+                    for(int j=0;j<nbParticule;j++){
+                        vec3 acc=generate_triangle(x,y,z);
+                        particles.position.push_back(acc);
+                    }
+                }
+
+            sphere_generate=true;
+
+            }else{
+                if(!start){
+                    nettoyage(particles);
+                    sphere_generate=false;
+                }
+                
+            }
+        }
+        /*
         if(currentMesh==2){
             indexed_vertices_mesh.clear();
             indices_mesh.clear();
@@ -696,6 +804,12 @@ int main( void )
 
         GLuint textureLocation = glGetUniformLocation(programID, "particleTexture");
         glUniform1i(textureLocation, 0); 
+
+        glActiveTexture(GL_TEXTURE0+1);
+        glBindTexture(GL_TEXTURE_2D, smoke2);
+
+        GLuint textureLocation2 = glGetUniformLocation(programID, "particleTexture2");
+        glUniform1i(textureLocation2, 1); 
             
 
 
