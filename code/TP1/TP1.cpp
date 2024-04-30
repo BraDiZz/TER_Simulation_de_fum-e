@@ -469,7 +469,7 @@ int main( void )
     GLuint programID2 = LoadShaders( "vertexCube.glsl", "fragmentCube.glsl");
 
     GLuint smoke = loadTexture2DFromFilePath("../textures/smoke.png");
-    GLuint smoke2 = loadTexture2DFromFilePath("../textures/smoke2.png");
+    GLuint smoke2 = loadTexture2DFromFilePath("../textures/smoke3.png");
 
 
 
@@ -510,7 +510,30 @@ int main( void )
     GLuint lifeBuffer;
     
     Particle particles;
+
     
+    //pré calucle suzanne
+    
+    std::vector<glm::vec3> suzanne;
+
+    indexed_vertices_mesh.clear();
+    indices_mesh.clear();
+    loadOFF("./data/suzanne.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
+    /*
+    for(int i=0;i<indices_mesh.size();i+=3){
+        vec3 x=indexed_vertices_mesh[indices_mesh[i]];
+        vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
+        vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
+        for(int j=0;j<nbParticule;j++){
+            vec3 acc=generate_triangle(x,y,z);
+            suzanne.push_back(acc);
+        }
+    }*/
+    for(int i=0;i<indexed_vertices_mesh.size();++i){
+        vec3 acc=indexed_vertices_mesh[i];
+        suzanne.push_back(acc);
+    }
+
 
     glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
@@ -605,7 +628,6 @@ int main( void )
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_grid.size() * sizeof(unsigned short), &indices_grid[0] , GL_STATIC_DRAW);
 
 
-
         if(currentMesh==0){
             std::vector<Particle> acc_stock;
             if(start){
@@ -616,22 +638,25 @@ int main( void )
                     particles.deplacement.push_back(generate_deplacement());
                 }            
             }
-                int taille_prov=particles.position.size();
-            for (int i = 0; i < taille_prov; ++i) {
-                particles.life[i]=particles.life[i]-1;
-                if(particles.life[i]>0){
-                    particles.position[i] += particles.deplacement[i]; 
-                    particles.position[i] += windVector;
-                    particles.position[i] += vec3(0,particles.baseVelocity[i],0);
-                    particles.baseVelocity[i] += gravityVector.y;
-                }else{
-                        
-                    particles.position.erase(particles.position.begin()+i);
-                    particles.deplacement.erase(particles.deplacement.begin()+i);
-                    particles.life.erase(particles.life.begin()+i);
-                    particles.baseVelocity.erase(particles.baseVelocity.begin()+i);
+            int taille_prov=particles.position.size();
+            if(taille_prov>0){
+                for (int i = 0; i < taille_prov; ++i) {
+                    particles.life[i]=particles.life[i]-1;
+                    if(particles.life[i]>0){
+                        particles.position[i] += particles.deplacement[i]; 
+                        particles.position[i] += windVector;
+                        particles.position[i] += vec3(0,particles.baseVelocity[i],0);
+                        particles.baseVelocity[i] += gravityVector.y;
+                    }else{
+                            
+                        particles.position.erase(particles.position.begin()+i);
+                        particles.deplacement.erase(particles.deplacement.begin()+i);
+                        particles.life.erase(particles.life.begin()+i);
+                        particles.baseVelocity.erase(particles.baseVelocity.begin()+i);
+                    }
                 }
             }
+            
             
             
         }
@@ -701,103 +726,45 @@ int main( void )
             }
         }
         if(currentMesh==3){
-            indexed_vertices_mesh.clear();
-            indices_mesh.clear();
-            loadOFF("./data/suzanne.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
-            if(start && !sphere_generate){
+            if(!sphere_generate){
+                vec3 dep=generate_deplacement();
                 nettoyage(particles);
-                /*
-                for(int i=0;i<indexed_vertices_mesh.size();i++){
-                    particles.position.push_back(indexed_vertices_mesh[i]);
-                    particles.life.push_back(350.);
-                }*/
-                
-                for(int i=0;i<indices_mesh.size();i+=3){
-                    vec3 x=indexed_vertices_mesh[indices_mesh[i]];
-                    vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
-                    vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
-                    for(int j=0;j<nbParticule;j++){
-                        vec3 acc=generate_triangle(x,y,z);
-                        particles.position.push_back(acc);
+                int t=suzanne.size();
+                for(int i=0;i<t;++i){
+                    particles.position.push_back(suzanne[i]);
+                    particles.life.push_back(lifeTime);
+                    particles.baseVelocity.push_back(velocity);
+                    particles.deplacement.push_back(dep);
+                }
+                sphere_generate=true;
+            }
+            if(start){
+                int taille_prov=particles.position.size();
+                if(taille_prov>0){
+                    for (int i = 0; i < taille_prov; ++i) {
+                        particles.life[i]=particles.life[i]-1;
+                        if(particles.life[i]>0){
+                            particles.position[i] += particles.deplacement[i]; 
+                            particles.position[i] += windVector;
+                            particles.position[i] += vec3(0,particles.baseVelocity[i],0);
+                            particles.baseVelocity[i] += gravityVector.y;
+                        }else{
+                                
+                            particles.position.erase(particles.position.begin()+i);
+                            particles.deplacement.erase(particles.deplacement.begin()+i);
+                            particles.life.erase(particles.life.begin()+i);
+                            particles.baseVelocity.erase(particles.baseVelocity.begin()+i);
+                        }
                     }
                 }
-
-            sphere_generate=true;
-
             }else{
-                if(!start){
-                    nettoyage(particles);
-                    sphere_generate=false;
-                }
-                
+                nettoyage(particles);
+                sphere_generate=false;
             }
-        }
-        /*
-        if(currentMesh==2){
-            indexed_vertices_mesh.clear();
-            indices_mesh.clear();
-            loadOFF("./data/chair.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
-            if(start && !sphere_start){
-                particles.clear();
-                particles.resize(indexed_vertices_mesh.size());
-                for(int i=0;i<indexed_vertices_mesh.size();i++){
-                    particles[i].position=indexed_vertices_mesh[i];
-                }
 
-                for(int i=0;i<indices_mesh.size();i+=3){
-                    vec3 x=indexed_vertices_mesh[indices_mesh[i]];
-                    vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
-                    vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];gravityVector
-                    for(int j=0;j<nbParticule;j++){
-                        Particle acc;
-                        acc.position=start_triangle(x,y,z);
-                        particles.push_back(acc);
-                    }
-                }
-
-            sphere_generate=true;
-
-            }else{
-                if(!star){
-                    particles.clear();
-                    sphere_generate=false;
-                }
-                
-            }
-        }
-
-        if(currentMesh==3){
-            indexed_vertices_mesh.clear();
-            indices_mesh.clear();
-            loadOFF("./data/suzanne.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
-            if(star && !sphere_generate){
-                particles.clear();
-                particles.resize(indexed_vertices_mesh.size());
-                for(int i=0;i<indexed_vertices_mesh.size();i++){
-                    particles[i].position=indexed_vertices_mesh[i];
-                }
-
-                for(int i=0;i<indices_mesh.size();i+=3){
-                    vec3 x=indexed_vertices_mesh[indices_mesh[i]];
-                    vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
-                    vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
-                    for(int j=0;j<nbParticule;j++){
-                        Particle acc;
-                        acc.position=generate_triangle(x,y,z);
-                        particles.push_back(acc);
-                    }
-                }
-
-            sphere_generate=true;
-
-            }else{
-                if(!star){
-                    particles.clear();
-                    sphere_generate=false;
-                }
-                
-            }
-        }*/
+            
+        }    
+       
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, smoke);
@@ -814,7 +781,12 @@ int main( void )
 
 
         //permet d'ordonner en fonction de la profondeur     
-        tri_profondeur(particles);
+        if(particles.position.size()>0) {
+            tri_profondeur(particles);
+        }
+
+        
+
 
         glGenBuffers(2, &particleBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
