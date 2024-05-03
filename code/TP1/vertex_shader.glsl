@@ -7,6 +7,9 @@ uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
 
+uniform float size_cube;
+uniform vec3 position_cube;
+
 out float vertex_life;
 
 void main() {
