@@ -412,6 +412,118 @@ vec3 estDansLeCube(const glm::vec3& point, const glm::vec3& cubePosition, float 
     return deplacement;   
 }
 
+
+void calcul_normal(std::vector<vec3> &vertices, std::vector<unsigned short> &indices, std::vector<vec3> &normals){
+    normals.resize(vertices.size());
+    for(int i=0;i<indices.size();i+=3){
+        unsigned int index0 = indices[i];
+        unsigned int index1 = indices[i + 1];
+        unsigned int index2 = indices[i + 2];
+
+        glm::vec3 v0 = vertices[index0];
+        glm::vec3 v1 = vertices[index1];
+        glm::vec3 v2 = vertices[index2];
+
+        glm::vec3 edge1 = v1 - v0;
+        glm::vec3 edge2 = v2 - v0;
+        glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
+
+        normals[index0] += normal;
+        normals[index1] += normal;
+        normals[index2] += normal;
+    }
+
+    for (size_t i = 0; i < normals.size(); ++i) {
+        normals[i] = glm::normalize(normals[i]);
+    }
+}
+int resolution_plan=16;    
+int nx_square=10;
+int ny_square=10;
+void creation_plan(std::vector<unsigned short> &indices, std::vector<std::vector<unsigned short> > &triangles, std::vector<glm::vec3> &indexed_vertices, std::vector<glm::vec2> &indexed_texcoords) {
+    indices.clear();
+    indexed_vertices.clear();
+    indexed_texcoords.clear();
+    for (int i = 0; i <= resolution_plan; i++) {
+        for (int j = 0; j <= resolution_plan; j++) {
+            float x = static_cast<float>(i) / resolution_plan - 0.5f;
+            float y = static_cast<float>(j) / resolution_plan - 0.5f;
+            glm::vec3 val = glm::vec3((float)x * nx_square,0, (float)y * ny_square);
+            indexed_vertices.push_back(val);
+            glm::vec2 texCoord = glm::vec2(static_cast<float>(i) / resolution_plan, static_cast<float>(j) / resolution_plan);
+            indexed_texcoords.push_back(texCoord);
+        }
+    }
+    for (int i = 0; i <= resolution_plan; i++) {
+        for (int j = 0; j <= resolution_plan; j++) {
+            float x = static_cast<float>(i) / resolution_plan - 0.5f;
+            float y = static_cast<float>(j) / resolution_plan - 0.5f;
+            glm::vec3 val = glm::vec3((float)x * nx_square, (float)y * ny_square+(ny_square/2.),-3.);
+            indexed_vertices.push_back(val);
+            glm::vec2 texCoord = glm::vec2(static_cast<float>(i) / resolution_plan, static_cast<float>(j) / resolution_plan);
+            indexed_texcoords.push_back(texCoord);
+        }
+    }
+    for (int i = 0; i <= resolution_plan; i++) {
+        for (int j = 0; j <= resolution_plan; j++) {
+            float x = static_cast<float>(i) / resolution_plan - 0.5f;
+            float y = static_cast<float>(j) / resolution_plan - 0.5f;
+            glm::vec3 val = glm::vec3(-5.,(float)x * nx_square+(nx_square/2.), (float)y * ny_square+(ny_square/2.)-(ny_square/2.));
+            indexed_vertices.push_back(val);
+            glm::vec2 texCoord = glm::vec2(static_cast<float>(i) / resolution_plan, static_cast<float>(j) / resolution_plan);
+            indexed_texcoords.push_back(texCoord);
+        }
+    }
+    for (int i = 0; i <= resolution_plan; i++) {
+        for (int j = 0; j <= resolution_plan; j++) {
+            float x = static_cast<float>(i) / resolution_plan - 0.5f;
+            float y = static_cast<float>(j) / resolution_plan - 0.5f;
+            glm::vec3 val = glm::vec3(5.,(float)x * nx_square+(nx_square/2.), (float)y * ny_square+(ny_square/2.)-(ny_square/2.));
+            indexed_vertices.push_back(val);
+            glm::vec2 texCoord = glm::vec2(static_cast<float>(i) / resolution_plan, static_cast<float>(j) / resolution_plan);
+            indexed_texcoords.push_back(texCoord);
+        }
+    }
+
+
+
+
+    for (int i = 0; i < resolution_plan; i++) {
+        for (int j = 0; j < resolution_plan; j++) {
+            // floor
+            indices.push_back(i * (resolution_plan + 1) + j);
+            indices.push_back((i + 1) * (resolution_plan + 1) + j);
+            indices.push_back(i * (resolution_plan + 1) + j + 1);
+            indices.push_back(i * (resolution_plan + 1) + j + 1);
+            indices.push_back((i + 1) * (resolution_plan + 1) + j);
+            indices.push_back((i + 1) * (resolution_plan + 1) + j + 1);
+            //back wall
+            indices.push_back(((resolution_plan + 1) * (resolution_plan + 1)) + (i * (resolution_plan + 1)) + j);
+            indices.push_back(((resolution_plan + 1) * (resolution_plan + 1)) + ((i + 1) * (resolution_plan + 1)) + j + 1);
+            indices.push_back(((resolution_plan + 1) * (resolution_plan + 1)) + (i * (resolution_plan + 1)) + j + 1);
+            indices.push_back(((resolution_plan + 1) * (resolution_plan + 1)) + (i * (resolution_plan + 1)) + j);
+            indices.push_back(((resolution_plan + 1) * (resolution_plan + 1)) + ((i + 1) * (resolution_plan + 1)) + j);
+            indices.push_back(((resolution_plan + 1) * (resolution_plan + 1)) + ((i + 1) * (resolution_plan + 1)) + j + 1);
+            // left wall
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 2 + (i * (resolution_plan + 1) + j));
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 2 + ((i + 1) * (resolution_plan + 1) + j));
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 2 + (i * (resolution_plan + 1) + j + 1));
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 2 + (i * (resolution_plan + 1) + j + 1));
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 2 + ((i + 1) * (resolution_plan + 1) + j));
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 2 + ((i + 1) * (resolution_plan + 1) + j + 1));
+
+            // right wall
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 3 + (i * (resolution_plan + 1) + j));
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 3 + ((i + 1) * (resolution_plan + 1) + j));
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 3 + (i * (resolution_plan + 1) + j + 1));
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 3 + (i * (resolution_plan + 1) + j + 1));
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 3 + ((i + 1) * (resolution_plan + 1) + j));
+            indices.push_back((resolution_plan + 1) * (resolution_plan + 1) * 3 + ((i + 1) * (resolution_plan + 1) + j + 1));
+
+        }
+    }
+}
+
 //variable du panneau de contrôle imgui
 float side = 1.7; //taille du cube
 int resolution=1;
@@ -454,6 +566,12 @@ bool show_menu_para=false;
 //pour stocker les infos du cube
 float taille;
 vec3 position_cube;
+vec3 light_color=vec3(1.,1.,1.);
+
+
+//light 
+float intensity=0.1f;
+vec3 light_pos=vec3(0.,0.,1.);
 
 int main( void )
 {
@@ -497,7 +615,10 @@ int main( void )
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
+/*
     glEnable(GL_LIGHTING);
+    GLfloat lightDirection[] = {1.0f, 1.0f, 1.0f, 0.0f}; // Direction de la lumière (dans l'espace du monde)
+    glLightfv(GL_LIGHT0, GL_POSITION, lightDirection);*/
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -515,7 +636,8 @@ int main( void )
 
     GLuint smoke = loadTexture2DFromFilePath("../textures/smoke.png");
     GLuint smoke2 = loadTexture2DFromFilePath("../textures/smoke3.png");
-
+    //GLuint plan_text = loadTexture2DFromFilePath("../textures/pavement.jpg");
+    GLuint plan_text = loadTexture2DFromFilePath("../textures/ciel.png");
 
 
     int M = glGetUniformLocation(programID,"ModelMatrix");
@@ -525,6 +647,7 @@ int main( void )
     Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
     glUniformMatrix4fv(P, 1, GL_FALSE, &Projection[0][0]);
+
 
     std::vector<unsigned short> indices; //Triangles concaténés dans une liste
     std::vector<std::vector<unsigned short> > triangles;
@@ -537,6 +660,19 @@ int main( void )
     std::vector<unsigned short> indices_grid; //Triangles concaténés dans une liste
     std::vector<std::vector<unsigned short> > triangles_grid;
     std::vector<glm::vec3> indexed_vertices_grid; // sommets
+    std::vector<glm::vec3> normal_grid;
+
+
+    std::vector<unsigned short> indices_gen; //Triangles concaténés dans une liste
+    std::vector<std::vector<unsigned short> > triangles_gen;
+    std::vector<glm::vec3> indexed_vertices_gen;
+    std::vector<glm::vec3> normal_gen;
+
+    std::vector<unsigned short> indices_piece; //Triangles concaténés dans une liste
+    std::vector<std::vector<unsigned short> > triangles_piece;
+    std::vector<glm::vec3> indexed_vertices_piece;
+    std::vector<glm::vec3> normal_piece;
+    std::vector<glm::vec2> textcoord_piece;
 
     //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
     Grid grid;
@@ -545,9 +681,20 @@ int main( void )
     grid.maxPos=vec3(side,side,side);
     grid.cells.resize(pow(grid.resolution,3));
 
-    
+    //buffer cube
     GLuint vertexbuffer;
     GLuint elementbuffer;
+    GLuint normalbuffer;
+    //buffer piece
+    GLuint vertexbuffer_piece;
+    GLuint elementbuffer_piece;
+    GLuint normalbuffer_piece;  
+    GLuint textcoordbuffer_piece;
+    //buffer turbine  
+    GLuint vertexbuffer_gen;
+    GLuint elementbuffer_gen;
+    GLuint normalbuffer_gen;
+    //buffer particule
     GLuint particleBuffer;
     GLuint lifeBuffer;
     
@@ -585,12 +732,26 @@ int main( void )
     //calcul taille du cube 
     loadOFF("./data/cube.off",indexed_vertices_grid,indices_grid,triangles_mesh);
     calculerTailleEtPositionCube(indexed_vertices_grid,taille,position_cube);
-    cout<<taille<<endl;
-    //cout<<position[0]<<"/"<<position[1]<<"/"<<position[2]<<endl;
+    calcul_normal(indexed_vertices_grid,indices_grid,normal_grid);
+    /*
+    for(int i=0;i<normal_grid.size();++i){
+        cout<<normal_grid[i][0]<<endl;
+    }*/
     indexed_vertices_grid.clear();
     indices_grid.clear();
     //----------
 
+    loadOFF("./data/turbine.off",indexed_vertices_gen,indices_gen,triangles_gen);
+    calcul_normal(indexed_vertices_gen,indices_gen,normal_gen);
+
+    creation_plan(indices_piece,triangles_piece,indexed_vertices_piece,textcoord_piece);
+    calcul_normal(indexed_vertices_piece,indices_piece,normal_piece);
+    for(int i=0;i<normal_piece.size()/4.;++i){
+        normal_piece[i]=vec3(-normal_piece[i][0],-normal_piece[i][1],-normal_piece[i][2]);
+    }
+    for(int i=(normal_piece.size()/4.)*3.;i<normal_piece.size();++i){
+        normal_piece[i]=vec3(-normal_piece[i][0],-normal_piece[i][1],-normal_piece[i][2]);
+    }
 
 
 
@@ -639,6 +800,18 @@ int main( void )
                 //setGrid(indices_grid,indexed_vertices_grid,side*2,grid.resolution,0);
             }
         }
+        if (ImGui::CollapsingHeader("Environnement", show_menu_grille))
+        {
+            ImGui::SliderFloat("Intensité de la lumière", &intensity, 0.01f, 2.f);
+            ImGui::SliderFloat("Positon lumière sur x", &light_pos[0], -5.f, 5.f);
+            ImGui::SliderFloat("Positon lumière sur y", &light_pos[1], -5.f, 5.f);
+            ImGui::SliderFloat("Positon lumière sur z", &light_pos[2], -5.f, 5.f);
+            static float color_light[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+            ImGui::ColorEdit4("Color", color_light);
+            light_color=vec3(color_light[0],color_light[1],color_light[2]);
+
+
+        }
         static float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
         vec3 gravityVector = {0,-gravity,0};
         float arrowDirection = fmod(windDirection, 360.0f) * (3.14159265358979323846f / 180.0f); // Convertir en radians
@@ -664,6 +837,7 @@ int main( void )
                 indices_grid.clear();
             }
             ImGui::SliderFloat("Hauteur du cube", &position_cube[1], -5.0f, 5.f);  
+            ImGui::SliderFloat("Positon du cube", &position_cube[0], -5.0f, 5.f);
 
         }
 
@@ -722,20 +896,23 @@ int main( void )
                     particles.life[i]--;
                     if(particles.life[i]>0){
                         if(collision){ 
-                                vec3 pos_acc=vec3(position_cube[0],position_cube[1]*0.3,position_cube[2]);
+                                vec3 pos_acc=vec3(position_cube[0]*0.3,position_cube[1]*0.3,position_cube[2]*0.3);
                                 vec3 acc=estDansLeCube(particles.position[i],pos_acc,taille*0.3, particles.deplacement[i],0);
-                                particles.position[i] += acc;
-                                particles.position[i] += windVector;
+                                
+                                
                                 if(acc[0]==particles.deplacement[i][0]  && acc[1]==particles.deplacement[i][1] && acc[2]==particles.deplacement[i][2]){
-
+                                    particles.position[i] += acc;
                                     particles.position[i] += vec3(0,particles.baseVelocity[i],0);
                                     particles.baseVelocity[i] += gravityVector.y; 
+                                }else{
+                                    particles.position[i] += vec3(10.,10.,10.)*acc;
                                 }
+
+                                particles.position[i] += windVector;
                                 
                         }else{    
 
                                 particles.position[i] += particles.deplacement[i]; 
-                                //particles.position[i] += estDansLeCube(particles.position[i], position_cube,taille*0.3, particles.deplacement[i],0);
                                 particles.position[i] += windVector;
                                 particles.position[i] += vec3(0,particles.baseVelocity[i],0);
                                 particles.baseVelocity[i] += gravityVector.y;                                
@@ -874,6 +1051,12 @@ int main( void )
 
         GLuint textureLocation2 = glGetUniformLocation(programID, "particleTexture2");
         glUniform1i(textureLocation2, 1); 
+
+        glActiveTexture(GL_TEXTURE0+2);
+        glBindTexture(GL_TEXTURE_2D, plan_text);
+
+        GLuint textureLocation3 = glGetUniformLocation(programID2, "texture_plan");
+        glUniform1i(textureLocation3, 2); 
             
 
 
@@ -882,6 +1065,38 @@ int main( void )
             tri_profondeur(particles);
         }
 
+
+        //bind de la turbine
+        glGenBuffers(1, &vertexbuffer_gen);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_gen);
+        glBufferData(GL_ARRAY_BUFFER, indexed_vertices_gen.size() * sizeof(glm::vec3), &indexed_vertices_gen[0], GL_DYNAMIC_DRAW);
+
+        glGenBuffers(1, &normalbuffer_gen);
+        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_gen);
+        glBufferData(GL_ARRAY_BUFFER, normal_gen.size() * sizeof(glm::vec3), &normal_gen[0], GL_DYNAMIC_DRAW);
+
+        glGenBuffers(1, &elementbuffer_gen);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_gen);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_gen.size() * sizeof(unsigned short), &indices_gen[0], GL_DYNAMIC_DRAW);
+
+        //bind piece
+        glGenBuffers(1, &vertexbuffer_piece);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_piece);
+        glBufferData(GL_ARRAY_BUFFER, indexed_vertices_piece.size() * sizeof(glm::vec3), &indexed_vertices_piece[0], GL_DYNAMIC_DRAW);
+
+        glGenBuffers(1, &normalbuffer_piece);
+        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_piece);
+        glBufferData(GL_ARRAY_BUFFER, normal_piece.size() * sizeof(glm::vec3), &normal_piece[0], GL_DYNAMIC_DRAW);
+
+        glGenBuffers(1, &textcoordbuffer_piece);
+        glBindBuffer(GL_ARRAY_BUFFER, textcoordbuffer_piece);
+        glBufferData(GL_ARRAY_BUFFER, textcoord_piece.size() * sizeof(glm::vec3), &textcoord_piece[0], GL_DYNAMIC_DRAW);
+
+        glGenBuffers(1, &elementbuffer_piece);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_piece);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_piece.size() * sizeof(unsigned short), &indices_piece[0], GL_DYNAMIC_DRAW);
+
+        //bind du cube
         glGenBuffers(1, &vertexbuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glBufferData(GL_ARRAY_BUFFER, indexed_vertices_grid.size() * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
@@ -889,6 +1104,12 @@ int main( void )
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glBufferSubData(GL_ARRAY_BUFFER, 0, indexed_vertices_grid.size() * sizeof(glm::vec3), &indexed_vertices_grid[0]);
 
+        glGenBuffers(1, &normalbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+        glBufferData(GL_ARRAY_BUFFER, normal_grid.size() * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, normal_grid.size() * sizeof(glm::vec3), &normal_grid[0]);
 
         glGenBuffers(1, &elementbuffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
@@ -897,9 +1118,7 @@ int main( void )
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices_grid.size() * sizeof(unsigned short), &indices_grid[0]);
 
-        
-
-
+        //bind des particules
         glGenBuffers(2, &particleBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
         glBufferData(GL_ARRAY_BUFFER, particles.position.size() * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
@@ -923,19 +1142,44 @@ int main( void )
         Model2 = glm::translate(Model2,position_cube);
         View = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
         Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
+        mat4 Model3 = glm::mat4(1.f);
+        Model3 = glm::translate(Model3,vec3(0.,-2.,0.));
+        Model3 = glm::rotate(Model3,radians(-90.f),vec3(0.,0.,1.));
+        Model3 = glm::scale(Model3,vec3(1.));
+
+        mat4 Model4 = glm::mat4(1.f);
+        Model4 = glm::translate(Model4,vec3(0.,-2.2,-2.));
+        Model4 = glm::scale(Model4,vec3(1.));
+
+
         glUniformMatrix4fv(M, 1, GL_FALSE, &Model2[0][0]);
         glUniformMatrix4fv(V, 1, GL_FALSE, &View[0][0]);
         glUniformMatrix4fv(P, 1, GL_FALSE, &Projection[0][0]);
 
-    
-        glUniform3f(glGetUniformLocation(programID2,"c"),1.,1.,1.);
+        
+        glUniform3f(glGetUniformLocation(programID2,"c"),smokeColor.x,smokeColor.y,smokeColor.z);
+        glUniform1f(glGetUniformLocation(programID2,"intensity"),intensity);
+        glUniform3f(glGetUniformLocation(programID2,"lightPos"),light_pos.x,light_pos.y,light_pos.z);
+        glUniform3f(glGetUniformLocation(programID2,"lightColor"),light_color.x,light_color.y,light_color.z);
 
-        // 1rst attribute buffer : vertices
+        // envoie du cube
         glEnableVertexAttribArray(0);
-
+        glUniform1i(glGetUniformLocation(programID2,"plan"),0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glVertexAttribPointer(
                     0,                  // attribute
+                    3,                  // size
+                    GL_FLOAT,           // type
+                    GL_FALSE,           // normalized?
+                    0,                  // stride
+                    (void*)0            // array buffer offset
+                    );
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+        glVertexAttribPointer(
+                    1,                  // attribute
                     3,                  // size
                     GL_FLOAT,           // type
                     GL_FALSE,           // normalized?
@@ -951,9 +1195,90 @@ int main( void )
                     GL_UNSIGNED_SHORT,   // type
                     (void*)0           // element array buffer offset
                     );
+        //envoie de la piece
+        glUniform1i(glGetUniformLocation(programID2,"plan"),1);
+        glUniformMatrix4fv(M, 1, GL_FALSE, &Model4[0][0]);
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_piece);
+        glVertexAttribPointer(
+                    0,                  // attribute
+                    3,                  // size
+                    GL_FLOAT,           // type
+                    GL_FALSE,           // normalized?
+                    0,                  // stride
+                    (void*)0            // array buffer offset
+                    );
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_piece);
+        glVertexAttribPointer(
+                    1,                  // attribute
+                    3,                  // size
+                    GL_FLOAT,           // type
+                    GL_FALSE,           // normalized?
+                    0,                  // stride
+                    (void*)0            // array buffer offset
+                    );
+
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, textcoordbuffer_piece);
+        glVertexAttribPointer(
+                    2,                  // attribute
+                    2,                  // size
+                    GL_FLOAT,           // type
+                    GL_FALSE,           // normalized?
+                    0,                  // stride
+                    (void*)0            // array buffer offset
+                    );
+
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_piece);
+        glDrawElements(
+                    GL_TRIANGLES,      // mode
+                    indices_piece.size(),    // count
+                    GL_UNSIGNED_SHORT,   // type
+                    (void*)0           // element array buffer offset
+                    );
+
+
+        //envoie de turbine
+        glUniform1i(glGetUniformLocation(programID2,"plan"),0);
+        glEnableVertexAttribArray(0);
+        glUniformMatrix4fv(M, 1, GL_FALSE, &Model3[0][0]);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_gen);
+        glVertexAttribPointer(
+                    0,                  // attribute
+                    3,                  // size
+                    GL_FLOAT,           // type
+                    GL_FALSE,           // normalized?
+                    0,                  // stride
+                    (void*)0            // array buffer offset
+                    );
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_gen);
+        glVertexAttribPointer(
+                    1,                  // attribute
+                    3,                  // size
+                    GL_FLOAT,           // type
+                    GL_FALSE,           // normalized?
+                    0,                  // stride
+                    (void*)0            // array buffer offset
+                    );
+
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_gen);
+        glDrawElements(
+                    GL_TRIANGLES,      // mode
+                    indices_gen.size(),    // count
+                    GL_UNSIGNED_SHORT,   // type
+                    (void*)0           // element array buffer offset
+                    );
 
         glDisableVertexAttribArray(0);
 
+
+        //envoie des particules
         glUseProgram(programID);
 
         glUniformMatrix4fv(M, 1, GL_FALSE, &Model[0][0]);
@@ -965,7 +1290,9 @@ int main( void )
         glUniform1f(glGetUniformLocation(programID,"deltaTime"),time_global);
         glUniform1f(glGetUniformLocation(programID,"melange"),melange);
         glUniform1f(glGetUniformLocation(programID,"amplitude"),amplitude);
-
+        glUniform1f(glGetUniformLocation(programID,"intensity"),intensity);
+        glUniform3f(glGetUniformLocation(programID,"lightPos"),light_pos.x,light_pos.y,light_pos.z);
+        glUniform3f(glGetUniformLocation(programID,"lightColor"),light_color.x,light_color.y,light_color.z);
 
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
@@ -979,16 +1306,14 @@ int main( void )
         );
         glPointSize(paticuleSize);
 
-
-        glUniform1i(glGetUniformLocation(programID,"size_p"),paticuleSize);
-
-    
+        glUniform1i(glGetUniformLocation(programID,"size_p"),paticuleSize);    
         GLuint lifeAttributeLocation = glGetAttribLocation(programID, "life");
         glEnableVertexAttribArray(lifeAttributeLocation);
         glBindBuffer(GL_ARRAY_BUFFER, lifeBuffer);
         glVertexAttribPointer(lifeAttributeLocation, 1, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         glDrawArrays(GL_POINTS, 0, particles.position.size());
+        //--------------------------
 
         ImGui::Render();
         int display_w, display_h;
@@ -1003,6 +1328,14 @@ int main( void )
            glfwWindowShouldClose(window) == 0 );
     if(vertexbuffer) glDeleteBuffers(1, &vertexbuffer);
     if(elementbuffer) glDeleteBuffers(1, &elementbuffer);
+    if(normalbuffer) glDeleteBuffers(1,&normalbuffer);
+    if(vertexbuffer_gen) glDeleteBuffers(1, &vertexbuffer_gen);
+    if(elementbuffer_gen) glDeleteBuffers(1, &elementbuffer_gen);
+    if(normalbuffer_gen) glDeleteBuffers(1,&normalbuffer_gen);
+    if(vertexbuffer_piece) glDeleteBuffers(1, &vertexbuffer_piece);
+    if(elementbuffer_piece) glDeleteBuffers(1, &elementbuffer_piece);
+    if(normalbuffer_piece) glDeleteBuffers(1,&normalbuffer_piece);
+    if(textcoordbuffer_piece) glDeleteBuffers(1,&textcoordbuffer_piece);
     if(particleBuffer) glDeleteBuffers(2, &particleBuffer);
     if(lifeBuffer) glDeleteBuffers(2, &lifeBuffer);
     if(programID) glDeleteProgram(programID);
