@@ -38,7 +38,7 @@ void main() {
  		discard;
     }
 
-    
+    /*
     vec3 camera=vec3(0.0f, 0.0f,6.0f);
     vec3 Normal=vec3(0.f,0.f,1.f);
     Normal=normalize(Normal);
@@ -53,12 +53,12 @@ void main() {
     V=normalize(V);
     vec3 spec=lightColor*0.5*pow(max(dot(R,V),0.f),16);
 
-    vec3 acc = (ambiante+diffuse+spec)*intensity;
+    vec3 acc = (ambiante+diffuse+spec)*intensity;*/
 
 
 
-    color = vec4(coloracc.rgb * c, coloracc.a * 2. * transparency);
-    //color = vec4(coloracc.a,0.,0. ,1.);
+    color = vec4(coloracc.rgb * c , coloracc.a * 2. * transparency);
+    //color = vec4(coloracc.rgb*c,1.);
 
     
 

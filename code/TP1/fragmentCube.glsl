@@ -11,8 +11,10 @@ uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform float intensity;
 uniform sampler2D texture_plan;
+uniform float deltaTime;
 
 uniform int plan;
+
 
 void main(){
         
@@ -30,15 +32,13 @@ void main(){
 
         vec3 acc = (ambiante+diffuse+spec)*intensity;
 
+        
         if(plan==1){
-                vec3 coloracc = texture(texture_plan,tc).rgb;
-                FragColor=vec4(acc*coloracc,1.0);   
+            vec3 coloracc = texture(texture_plan,tc).rgb;
+            FragColor=vec4(acc*coloracc,1.0);   
         }else{
                FragColor=vec4(acc,1.0); 
         }
 
-
-
-        //FragColor=vec4(1.,1.,1.,1.);
 
 }

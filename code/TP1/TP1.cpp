@@ -20,6 +20,7 @@ using namespace std;
 #include <limits>
 #include <map>
 
+
 using namespace glm;
 
 #include <common/shader.hpp>
@@ -636,8 +637,8 @@ int main( void )
 
     GLuint smoke = loadTexture2DFromFilePath("../textures/smoke.png");
     GLuint smoke2 = loadTexture2DFromFilePath("../textures/smoke3.png");
-    //GLuint plan_text = loadTexture2DFromFilePath("../textures/pavement.jpg");
-    GLuint plan_text = loadTexture2DFromFilePath("../textures/ciel.png");
+    GLuint plan_text = loadTexture2DFromFilePath("../textures/pavement.jpg");
+    //GLuint plan_text = loadTexture2DFromFilePath("../textures/ciel.png");
 
 
     int M = glGetUniformLocation(programID,"ModelMatrix");
@@ -727,6 +728,34 @@ int main( void )
         vec3 acc=indexed_vertices_mesh[i];
         suzanne2.push_back(acc);
     }
+
+    //pre calcul singe
+    std::vector<glm::vec3> monkey;
+    std::vector<glm::vec3> monkey2;
+
+    indexed_vertices_mesh.clear();
+    indices_mesh.clear();
+    loadOFF("./data/sphere.off",indexed_vertices_mesh,indices_mesh,triangles_mesh);
+    
+    for(int i=0;i<indices_mesh.size();i+=3){
+        vec3 x=indexed_vertices_mesh[indices_mesh[i]];
+        vec3 y=indexed_vertices_mesh[indices_mesh[i+1]];
+        vec3 z=indexed_vertices_mesh[indices_mesh[i+2]];
+        for(int j=0;j<10;j++){
+            vec3 acc=generate_triangle(x,y,z);
+            monkey.push_back(acc);
+        }
+    }
+    for(int i=0;i<indexed_vertices_mesh.size();++i){
+        vec3 acc=indexed_vertices_mesh[i];
+        monkey.push_back(acc);
+    }
+
+    for(int i=0;i<indexed_vertices_mesh.size();++i){
+        vec3 acc=indexed_vertices_mesh[i];
+        monkey2.push_back(acc);
+    }
+
     //-------
 
     //calcul taille du cube 
@@ -744,13 +773,14 @@ int main( void )
     loadOFF("./data/turbine.off",indexed_vertices_gen,indices_gen,triangles_gen);
     calcul_normal(indexed_vertices_gen,indices_gen,normal_gen);
 
-    creation_plan(indices_piece,triangles_piece,indexed_vertices_piece,textcoord_piece);
-    calcul_normal(indexed_vertices_piece,indices_piece,normal_piece);
-    for(int i=0;i<normal_piece.size()/4.;++i){
-        normal_piece[i]=vec3(-normal_piece[i][0],-normal_piece[i][1],-normal_piece[i][2]);
-    }
-    for(int i=(normal_piece.size()/4.)*3.;i<normal_piece.size();++i){
-        normal_piece[i]=vec3(-normal_piece[i][0],-normal_piece[i][1],-normal_piece[i][2]);
+
+     creation_plan(indices_piece,triangles_piece,indexed_vertices_piece,textcoord_piece);
+     calcul_normal(indexed_vertices_piece,indices_piece,normal_piece);
+     for(int i=0;i<normal_piece.size()/4.;++i){
+         normal_piece[i]=vec3(-normal_piece[i][0],-normal_piece[i][1],-normal_piece[i][2]);
+     }
+     for(int i=(normal_piece.size()/4.)*3.;i<normal_piece.size();++i){
+         normal_piece[i]=vec3(-normal_piece[i][0],-normal_piece[i][1],-normal_piece[i][2]);
     }
 
 
@@ -935,6 +965,113 @@ int main( void )
             
             
         }
+        if(currentMesh==1){
+            if(gros_mesh){
+                paticuleSize=20.;
+                int t=monkey.size();
+                if(!sphere_generate){
+                    vec3 dep=generate_deplacement();
+                    dep=vec3(dep.x/2.,dep.y/2.,dep.z/2.);
+                    nettoyage(particles);
+                    for(int i=0;i<t;++i){
+                        particles.position.push_back(monkey[i]);
+                        particles.life.push_back(lifeTime);
+                        particles.baseVelocity.push_back(velocity/10.);
+                        particles.deplacement.push_back(dep);
+                        float d=rand()%10;
+                        d/=10;
+                        particles.densite.push_back(d);
+                    }
+                    sphere_generate=true;
+                }
+
+
+
+                if(start){
+                    int taille_prov=particles.position.size();
+                    if(taille_prov>0){
+                        for (int i = 0; i < taille_prov; ++i) {
+                            //particles.life[i]=particles.life[i]-1;
+                            if(particles.life[i]>0){
+                                particles.position[i] += particles.deplacement[i]; 
+                                particles.position[i] += windVector;
+                                particles.position[i] += vec3(0,particles.baseVelocity[i],0);
+                                particles.baseVelocity[i] += gravityVector.y;
+                                float acc = 1. * (1.225-particles.densite[i]) * 9.81 * deltaTime / 100.;
+                                particles.baseVelocity[i] = -acc;
+                                
+                            }else{
+                                
+                                particles.position.erase(particles.position.begin()+i);
+                                particles.deplacement.erase(particles.deplacement.begin()+i);
+                                particles.life.erase(particles.life.begin()+i);
+                                particles.baseVelocity.erase(particles.baseVelocity.begin()+i);
+                                particles.densite.erase(particles.densite.begin()+i);
+                            }
+                        }
+                    }
+                }else{
+                    nettoyage(particles);
+                    sphere_generate=false;
+                }
+            }else{
+                paticuleSize=40.;
+                int t=monkey2.size();
+                if(!sphere_generate){
+                    vec3 dep=generate_deplacement();
+                    dep=vec3(dep.x/2.,dep.y/2.,dep.z/2.);
+                    nettoyage(particles);
+                    for(int i=0;i<t;++i){
+                        particles.position.push_back(monkey2[i]);
+                        particles.life.push_back(lifeTime);
+                        particles.baseVelocity.push_back(velocity/10.);
+                        particles.deplacement.push_back(dep);
+                        float d=rand()%10;
+                        d/=10;
+                        particles.densite.push_back(d);
+                    }
+                    sphere_generate=true;
+                }
+
+
+
+                if(start){
+                    int taille_prov=particles.position.size();
+                    if(taille_prov>0){
+                        for (int i = 0; i < taille_prov; ++i) {
+                            //particles.life[i]=particles.life[i]-1;
+                            if(particles.life[i]>0){
+                                particles.position[i] += particles.deplacement[i]; 
+                                particles.position[i] += windVector;
+                                particles.position[i] += vec3(0,particles.baseVelocity[i],0);
+                                particles.baseVelocity[i] += gravityVector.y;
+                                float acc = 1. * (1.225-particles.densite[i]) * 9.81 * deltaTime / 100.;
+                                particles.baseVelocity[i] = -acc;
+                                
+                            }else{
+                                
+                                particles.position.erase(particles.position.begin()+i);
+                                particles.deplacement.erase(particles.deplacement.begin()+i);
+                                particles.life.erase(particles.life.begin()+i);
+                                particles.baseVelocity.erase(particles.baseVelocity.begin()+i);
+                                particles.densite.erase(particles.densite.begin()+i);
+                            }
+                        }
+                    }
+                }else{
+                    nettoyage(particles);
+                    sphere_generate=false;
+                }
+
+            }
+        }
+        if(currentMesh==2){
+            paticuleSize=60.;
+            particles.position.push_back(vec3(0.,0.,0));
+            particles.life.push_back(lifeTime);
+            particles.baseVelocity.push_back(velocity/10.);
+            particles.deplacement.push_back(generate_deplacement());
+}
         if(currentMesh==3){
             if(gros_mesh){
                 paticuleSize=20.;
@@ -1162,6 +1299,7 @@ int main( void )
         glUniform1f(glGetUniformLocation(programID2,"intensity"),intensity);
         glUniform3f(glGetUniformLocation(programID2,"lightPos"),light_pos.x,light_pos.y,light_pos.z);
         glUniform3f(glGetUniformLocation(programID2,"lightColor"),light_color.x,light_color.y,light_color.z);
+        glUniform1f(glGetUniformLocation(programID2,"deltaTime"),time_global);
 
         // envoie du cube
         glEnableVertexAttribArray(0);
