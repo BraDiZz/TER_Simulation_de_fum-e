@@ -63,6 +63,8 @@ float zoom = 1.;
 
 std::vector<std::vector<std::vector<glm::vec3>>> gradientField;
 std::vector<std::vector<std::vector<float>>> scalarField;
+std::vector<std::vector<std::vector<float>>> pressureField;
+std::vector<std::vector<std::vector<glm::vec3>>> velocityField;
 
 
 struct GridData {
@@ -130,75 +132,75 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
     }
 }
 
-void setGrid(std::vector<unsigned short> &indices_grid, std::vector<glm::vec3> &indexed_vertices_grid, float gridSize, int resolution, int create) {
-    indices_grid.clear();
-    indexed_vertices_grid.clear();    
-    float cellSize = gridSize / resolution;
-    // Vertices
-    for (int z = 0; z <= resolution; ++z) {
-        for (int y = 0; y <= resolution; ++y) {
-            for (int x = 0; x <= resolution; ++x) {
-                indexed_vertices_grid.push_back(glm::vec3(x * cellSize - gridSize / 2.0f, y * cellSize - gridSize / 2.0f, z * cellSize - gridSize / 2.0f));
-            }
-        }
-    }
-    // indices_grid for horizontal lines
-    for (int z = 0; z < resolution; ++z) {
-        for (int y = 0; y < resolution; ++y) {
-            for (int x = 0; x < resolution; ++x) {
-                unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
-                indices_grid.push_back(index);
-                indices_grid.push_back(index + 1);
-            }
-        }
-    }
-    // indices_grid for vertical lines
-    for (int z = 0; z < resolution; ++z) {
-        for (int x = 0; x < resolution; ++x) {
-            for (int y = 0; y < resolution; ++y) {
-                unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
-                indices_grid.push_back(index);
-                indices_grid.push_back(index + (resolution + 1));
-            }
-        }
-    }
-    // indices_grid for depth lines
-    for (int y = 0; y < resolution; ++y) {
-        for (int x = 0; x < resolution; ++x) {
-            for (int z = 0; z < resolution; ++z) {
-                unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
-                indices_grid.push_back(index);
-                indices_grid.push_back(index + (resolution + 1) * (resolution + 1));
-            }
-        }
-    }
-    // Indices for closing the grid
-    for (int z = 0; z <= resolution; ++z) {
-        for (int y = 0; y <= resolution; ++y) {
-            indices_grid.push_back((resolution + 1) * (resolution + 1) * z + y * (resolution + 1));
-            indices_grid.push_back((resolution + 1) * (resolution + 1) * z + y * (resolution + 1) + resolution);
-        }
-    }
-    for (int z = 0; z <= resolution; ++z) {
-        for (int x = 0; x <= resolution; ++x) {
-            indices_grid.push_back((resolution + 1) * (resolution + 1) * z + x);
-            indices_grid.push_back((resolution + 1) * (resolution + 1) * z + resolution * (resolution + 1) + x);
-        }
-    }
-    for (int y = 0; y <= resolution; ++y) {
-        for (int x = 0; x <= resolution; ++x) {
-            indices_grid.push_back(y * (resolution + 1) + x);
-            indices_grid.push_back(resolution * (resolution + 1) * (resolution + 1) + y * (resolution + 1) + x);
-        }
-    }
-    if (create == 0) {
-        indices_grid.clear();
-        indexed_vertices_grid.clear();
-    }
-}
+// void setGrid(float gridSize, int resolution, int create) {
+//     indices_grid.clear();
+//     indexed_vertices_grid.clear();    
+//     float cellSize = gridSize / resolution;
+//     // Vertices
+//     for (int z = 0; z <= resolution; ++z) {
+//         for (int y = 0; y <= resolution; ++y) {
+//             for (int x = 0; x <= resolution; ++x) {
+//                 indexed_vertices_grid.push_back(glm::vec3(x * cellSize - gridSize / 2.0f, y * cellSize - gridSize / 2.0f, z * cellSize - gridSize / 2.0f));
+//             }
+//         }
+//     }
+//     // indices_grid for horizontal lines
+//     for (int z = 0; z < resolution; ++z) {
+//         for (int y = 0; y < resolution; ++y) {
+//             for (int x = 0; x < resolution; ++x) {
+//                 unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
+//                 indices_grid.push_back(index);
+//                 indices_grid.push_back(index + 1);
+//             }
+//         }
+//     }
+//     // indices_grid for vertical lines
+//     for (int z = 0; z < resolution; ++z) {
+//         for (int x = 0; x < resolution; ++x) {
+//             for (int y = 0; y < resolution; ++y) {
+//                 unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
+//                 indices_grid.push_back(index);
+//                 indices_grid.push_back(index + (resolution + 1));
+//             }
+//         }
+//     }
+//     // indices_grid for depth lines
+//     for (int y = 0; y < resolution; ++y) {
+//         for (int x = 0; x < resolution; ++x) {
+//             for (int z = 0; z < resolution; ++z) {
+//                 unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
+//                 indices_grid.push_back(index);
+//                 indices_grid.push_back(index + (resolution + 1) * (resolution + 1));
+//             }
+//         }
+//     }
+//     // Indices for closing the grid
+//     for (int z = 0; z <= resolution; ++z) {
+//         for (int y = 0; y <= resolution; ++y) {
+//             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + y * (resolution + 1));
+//             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + y * (resolution + 1) + resolution);
+//         }
+//     }
+//     for (int z = 0; z <= resolution; ++z) {
+//         for (int x = 0; x <= resolution; ++x) {
+//             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + x);
+//             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + resolution * (resolution + 1) + x);
+//         }
+//     }
+//     for (int y = 0; y <= resolution; ++y) {
+//         for (int x = 0; x <= resolution; ++x) {
+//             indices_grid.push_back(y * (resolution + 1) + x);
+//             indices_grid.push_back(resolution * (resolution + 1) * (resolution + 1) + y * (resolution + 1) + x);
+//         }
+//     }
+//     if (create == 0) {
+//         indices_grid.clear();
+//         indexed_vertices_grid.clear();
+//     }
+// }
 
-void fillScalarField(std::vector<std::vector<std::vector<float>>>& scalarField, int resolution) {
-    //printf("remplissage field\n");
+void fillScalarField(std::vector<std::vector<std::vector<float>>>& scalarField, int resolution, float scalarForce) {
+    // Réinitialisation du générateur de nombres aléatoires
     srand(time(NULL));
 
     scalarField.resize(resolution);
@@ -208,7 +210,7 @@ void fillScalarField(std::vector<std::vector<std::vector<float>>>& scalarField, 
             scalarField[i][j].resize(resolution);
             for (int k = 0; k < resolution; ++k) {
                 // Remplissage avec des valeurs aléatoires entre 0 et 10
-                scalarField[i][j][k] = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.00003f)); //.0001f
+                scalarField[i][j][k] = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / scalarForce) - scalarForce;
             }
         }
     }
@@ -219,13 +221,10 @@ void calculateGradient(const std::vector<std::vector<std::vector<float>>>& scala
     // Calcul du gradient
     gradientField.resize(resolution);
     for (int i = 1; i < resolution - 1; ++i) {
-        //printf("allright i\n");
         gradientField[i].resize(resolution);
         for (int j = 1; j < resolution - 1; ++j) {
-            //printf("allright j\n");
             gradientField[i][j].resize(resolution);
             for (int k = 1; k < resolution - 1; ++k) {
-                //printf("allright k\n");
                 float gradientX = (scalarField[i + 1][j][k] - scalarField[i - 1][j][k]) / (2 * cellSize);
                 float gradientY = (scalarField[i][j + 1][k] - scalarField[i][j - 1][k]) / (2 * cellSize);
                 float gradientZ = (scalarField[i][j][k + 1] - scalarField[i][j][k - 1]) / (2 * cellSize);
@@ -245,6 +244,74 @@ void applyGradientToParticles(const std::vector<std::vector<std::vector<glm::vec
         }
     }
 }
+
+void initializeRandomPressureField(std::vector<std::vector<std::vector<float>>>& pressureField, int resolution) {
+    pressureField.resize(resolution);
+    srand(time(nullptr)); // Réinitialisation du générateur de nombres aléatoires
+    for (int i = 0; i < resolution; ++i) {
+        pressureField[i].resize(resolution);
+        for (int j = 0; j < resolution; ++j) {
+            pressureField[i][j].resize(resolution);
+            for (int k = 0; k < resolution; ++k) {
+                pressureField[i][j][k] = 0.0f;
+            }
+        }
+    }
+}
+
+void initializeVelocityField(std::vector<std::vector<std::vector<glm::vec3>>>& velocityField, int resolution, float initialSpeed=4) {
+    velocityField.resize(resolution);
+    srand(time(NULL));  // Initialisation du générateur de nombres aléatoires
+
+    for (int i = 0; i < resolution; ++i) {
+        velocityField[i].resize(resolution);
+        for (int j = 0; j < resolution; ++j) {
+            velocityField[i][j].resize(resolution);
+            for (int k = 0; k < resolution; ++k) {
+                // Vitesse aléatoire dans une direction donnée
+                float vx = (static_cast<float>(rand()) / RAND_MAX - static_cast<float>(rand()) / RAND_MAX) * initialSpeed;
+                float vy = (static_cast<float>(rand()) / RAND_MAX - static_cast<float>(rand()) / RAND_MAX) * initialSpeed;
+                float vz = (static_cast<float>(rand()) / RAND_MAX - static_cast<float>(rand()) / RAND_MAX) * initialSpeed;
+                //float vz = static_cast<float>(rand()) / RAND_MAX * initialSpeed;
+
+                velocityField[i][j][k] = glm::vec3(vx, vy, vz);
+            }
+        }
+    }   
+}
+
+
+void advectParticles(const std::vector<std::vector<std::vector<glm::vec3>>>& velocityField,std::vector<glm::vec3>& particlePositions,float dt,float cellSize,int resolution) {
+    for(int m=0;m<particlePositions.size();m++){
+        int i = static_cast<int>((particlePositions[m][0] >= 0 ? particlePositions[m][0] : -particlePositions[m][0]) / cellSize); // Utilisation de la valeur absolue pour obtenir l'indice
+        int j = static_cast<int>((particlePositions[m][1] >= 0 ? particlePositions[m][1] : -particlePositions[m][1]) / cellSize);
+        int k = static_cast<int>((particlePositions[m][2] >= 0 ? particlePositions[m][2] : -particlePositions[m][2]) / cellSize);
+        if(i >= 0 && i < velocityField.size() && j >= 0 && j < velocityField[i].size() && k >= 0 && k < velocityField[i][j].size()) {
+            glm::vec3 velocity = velocityField[i][j][k];
+            particlePositions[m]+= velocity * dt;  // Déplacement selon la vitesse du fluide
+        }
+    }
+}
+void correctVelocityWithPressure(std::vector<std::vector<std::vector<glm::vec3>>>& velocityField,const std::vector<std::vector<std::vector<float>>>& pressureField,float cellSize) {
+    int resolution = pressureField.size();
+
+    for (int i = 1; i < resolution - 1; ++i) {
+        for (int j = 1; j < resolution - 1; ++j) {
+            for (int k = 1; k < resolution - 1; ++k) {
+                glm::vec3 pressureGradient = glm::vec3(
+                    (pressureField[i+1][j][k] - pressureField[i-1][j][k]) / (10 * cellSize),
+                    (pressureField[i][j+1][k] - pressureField[i][j-1][k]) / (10 * cellSize),
+                    (pressureField[i][j][k+1] - pressureField[i][j][k-1]) / (10 * cellSize)
+                );
+
+                // Ajuster la vitesse en soustrayant le gradient de pression
+                velocityField[i][j][k] -= pressureGradient;
+            }
+        }
+    }
+    
+}
+
 vec3 generate_deplacement(){
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -549,6 +616,8 @@ float melange=0.5f;
 float frequence=0.1f;
 float amplitude=0.1f;
 
+float scalarForce = 0.00003f;
+
 glm::mat4 View;
 glm::mat4 Model;
 glm::mat4 Projection;
@@ -817,18 +886,10 @@ int main( void )
         ImGui::Begin("panneau de controle");
         if (ImGui::CollapsingHeader("Grille", show_menu_grille))
         {
-            ImGui::SliderFloat("Taille du cube", &side, 0.01f, 4.f);
+            ImGui::SliderFloat("Taille de", &side, 0.01f, 4.f);
             ImGui::SliderInt("Resolution de la grille", &resolution,1.f,30.f);
+            ImGui::SliderFloat("Force du vecteur scalaire", &scalarForce, 0.001f, 0.01f); // à déterminer
             grid.resolution = resolution;
-                    ImGui::Checkbox("Montrer le cube", &isChecked);
-            if (isChecked){
-                //setCube(indices,indexed_vertices,side,1);
-                //setGrid(indices_grid,indexed_vertices_grid,side*2,grid.resolution,1);
-
-            }else{
-                //setCube(indices,indexed_vertices,side,0);
-                //setGrid(indices_grid,indexed_vertices_grid,side*2,grid.resolution,0);
-            }
         }
         if (ImGui::CollapsingHeader("Environnement", show_menu_grille))
         {
@@ -842,11 +903,31 @@ int main( void )
 
 
         }
+        static float oldResolution = resolution;
+        if (oldResolution != resolution) {
+
+            oldResolution= resolution;
+        }
+        grid.resolution = resolution;
+        static float oldScalarForce = scalarForce;
+        if (oldScalarForce != scalarForce) {
+            // seulement lorsque la resolution est modifié.
+            fillScalarField(scalarField,resolution,scalarForce);
+            calculateGradient(scalarField,side/resolution,gradientField);
+            oldScalarForce = scalarForce;
+        }
         static float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
         vec3 gravityVector = {0,-gravity,0};
         float arrowDirection = fmod(windDirection, 360.0f) * (3.14159265358979323846f / 180.0f); // Convertir en radians
         ImVec4 smokeColor = ImVec4(color[0], color[1], color[2], 1.0f);
         glm::vec3 windVector; 
+        initializeVelocityField(velocityField,resolution, 1);
+        initializeRandomPressureField(pressureField, resolution);
+        correctVelocityWithPressure(velocityField,pressureField,side/resolution);
+        advectParticles(velocityField,particles.position,scalarForce,side/resolution,resolution);
+        fillScalarField(scalarField,resolution,scalarForce/300);
+        calculateGradient(scalarField,side/resolution,gradientField);
+        applyGradientToParticles(gradientField,side/resolution,particles.position,particles.deplacement);
         if (ImGui::CollapsingHeader("Force Externe", show_menu_force))
         {
              // Initialiser à blanc
@@ -855,9 +936,6 @@ int main( void )
             ImGui::SliderFloat("Force du vent", &windStrength, 0.0f, 40.0f,"%1.f");
             ImGui::SliderFloat("Force de la gravité", &gravity, 0.0f, 0.0004f,"%.6f");   
             windVector=DrawWindArrow(windStrength, arrowDirection,smokeColor);         
-            fillScalarField(scalarField,resolution);
-            calculateGradient(scalarField,side/resolution,gradientField);
-            applyGradientToParticles(gradientField,side/resolution,particles.position,particles.deplacement);
             ImGui::Dummy(ImVec2(0.0f, 200.0f));
             ImGui::Checkbox("Collision avec le cube", &collision);
             if(collision){
@@ -868,6 +946,7 @@ int main( void )
             }
             ImGui::SliderFloat("Hauteur du cube", &position_cube[1], -5.0f, 5.f);  
             ImGui::SliderFloat("Positon du cube", &position_cube[0], -5.0f, 5.f);
+            ImGui::SliderFloat("Profondeur du cube", &position_cube[2], -5.0f, 5.f);
 
         }
 
