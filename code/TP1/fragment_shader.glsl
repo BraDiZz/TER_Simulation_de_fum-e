@@ -57,7 +57,7 @@ void main() {
 
 
 
-    color = vec4(coloracc.rgb * c , coloracc.a * 2. * transparency);
+    color = vec4(coloracc.rgb * c * intensity * 5., coloracc.a * 2. * transparency);
     //color = vec4(coloracc.rgb*c,1.);
 
     

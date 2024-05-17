@@ -640,8 +640,8 @@ vec3 light_color=vec3(1.,1.,1.);
 
 
 //light 
-float intensity=0.1f;
-vec3 light_pos=vec3(0.,0.,1.);
+float intensity=0.142f;
+vec3 light_pos=vec3(0.,3.8,1.);
 
 int main( void )
 {
@@ -843,6 +843,7 @@ int main( void )
     calcul_normal(indexed_vertices_gen,indices_gen,normal_gen);
 
 
+
      creation_plan(indices_piece,triangles_piece,indexed_vertices_piece,textcoord_piece);
      calcul_normal(indexed_vertices_piece,indices_piece,normal_piece);
      for(int i=0;i<normal_piece.size()/4.;++i){
@@ -893,9 +894,9 @@ int main( void )
         }
         if (ImGui::CollapsingHeader("Environnement", show_menu_grille))
         {
-            ImGui::SliderFloat("Intensité de la lumière", &intensity, 0.01f, 2.f);
+            ImGui::SliderFloat("Intensité de la lumière", &intensity, 0.01f, 0.5f);
             ImGui::SliderFloat("Positon lumière sur x", &light_pos[0], -5.f, 5.f);
-            ImGui::SliderFloat("Positon lumière sur y", &light_pos[1], -5.f, 5.f);
+            ImGui::SliderFloat("Positon lumière sur y", &light_pos[1], -5.f, 10.f);
             ImGui::SliderFloat("Positon lumière sur z", &light_pos[2], -5.f, 5.f);
             static float color_light[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
             ImGui::ColorEdit4("Color", color_light);
@@ -944,7 +945,7 @@ int main( void )
                 indexed_vertices_grid.clear();
                 indices_grid.clear();
             }
-            ImGui::SliderFloat("Hauteur du cube", &position_cube[1], -5.0f, 5.f);  
+            ImGui::SliderFloat("Hauteur du cube", &position_cube[1], -10.0f, 5.f);  
             ImGui::SliderFloat("Positon du cube", &position_cube[0], -5.0f, 5.f);
             ImGui::SliderFloat("Profondeur du cube", &position_cube[2], -5.0f, 5.f);
 
@@ -958,7 +959,6 @@ int main( void )
             ImGui::SliderFloat("Durée de vie des particules", &lifeTime, 1.0f, 1000.0f); // à déterminer
             ImGui::SliderFloat("Taille des particules", &paticuleSize, 1.0f, 40.0f); 
             ImGui::SliderFloat("Transparence", &transp, 20.0f, 300.0f);// à déterminer
-            ImGui::SliderFloat("Melange", &melange, 0.0f, 1.0f);// à déterminer
             ImGui::SliderFloat("Amplitude", &amplitude, 0.0f, 2.0f);
             if (ImGui::BeginCombo("Mesh disponible", meshAvailable[currentMesh]))
                 {
@@ -1530,6 +1530,7 @@ int main( void )
         glVertexAttribPointer(lifeAttributeLocation, 1, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         glDrawArrays(GL_POINTS, 0, particles.position.size());
+
         //--------------------------
 
         ImGui::Render();
