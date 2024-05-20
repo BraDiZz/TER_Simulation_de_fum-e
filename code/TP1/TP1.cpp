@@ -132,72 +132,6 @@ void setCube(std::vector<unsigned short> &indices, std::vector<glm::vec3> &index
     }
 }
 
-// void setGrid(float gridSize, int resolution, int create) {
-//     indices_grid.clear();
-//     indexed_vertices_grid.clear();    
-//     float cellSize = gridSize / resolution;
-//     // Vertices
-//     for (int z = 0; z <= resolution; ++z) {
-//         for (int y = 0; y <= resolution; ++y) {
-//             for (int x = 0; x <= resolution; ++x) {
-//                 indexed_vertices_grid.push_back(glm::vec3(x * cellSize - gridSize / 2.0f, y * cellSize - gridSize / 2.0f, z * cellSize - gridSize / 2.0f));
-//             }
-//         }
-//     }
-//     // indices_grid for horizontal lines
-//     for (int z = 0; z < resolution; ++z) {
-//         for (int y = 0; y < resolution; ++y) {
-//             for (int x = 0; x < resolution; ++x) {
-//                 unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
-//                 indices_grid.push_back(index);
-//                 indices_grid.push_back(index + 1);
-//             }
-//         }
-//     }
-//     // indices_grid for vertical lines
-//     for (int z = 0; z < resolution; ++z) {
-//         for (int x = 0; x < resolution; ++x) {
-//             for (int y = 0; y < resolution; ++y) {
-//                 unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
-//                 indices_grid.push_back(index);
-//                 indices_grid.push_back(index + (resolution + 1));
-//             }
-//         }
-//     }
-//     // indices_grid for depth lines
-//     for (int y = 0; y < resolution; ++y) {
-//         for (int x = 0; x < resolution; ++x) {
-//             for (int z = 0; z < resolution; ++z) {
-//                 unsigned short index = (z * (resolution + 1) + y) * (resolution + 1) + x;
-//                 indices_grid.push_back(index);
-//                 indices_grid.push_back(index + (resolution + 1) * (resolution + 1));
-//             }
-//         }
-//     }
-//     // Indices for closing the grid
-//     for (int z = 0; z <= resolution; ++z) {
-//         for (int y = 0; y <= resolution; ++y) {
-//             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + y * (resolution + 1));
-//             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + y * (resolution + 1) + resolution);
-//         }
-//     }
-//     for (int z = 0; z <= resolution; ++z) {
-//         for (int x = 0; x <= resolution; ++x) {
-//             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + x);
-//             indices_grid.push_back((resolution + 1) * (resolution + 1) * z + resolution * (resolution + 1) + x);
-//         }
-//     }
-//     for (int y = 0; y <= resolution; ++y) {
-//         for (int x = 0; x <= resolution; ++x) {
-//             indices_grid.push_back(y * (resolution + 1) + x);
-//             indices_grid.push_back(resolution * (resolution + 1) * (resolution + 1) + y * (resolution + 1) + x);
-//         }
-//     }
-//     if (create == 0) {
-//         indices_grid.clear();
-//         indexed_vertices_grid.clear();
-//     }
-// }
 
 void fillScalarField(std::vector<std::vector<std::vector<float>>>& scalarField, int resolution, float scalarForce) {
     // Réinitialisation du générateur de nombres aléatoires
@@ -1268,6 +1202,7 @@ int main( void )
         GLuint textureLocation2 = glGetUniformLocation(programID, "particleTexture2");
         glUniform1i(textureLocation2, 1); 
 
+        glUseProgram(programID2);
         glActiveTexture(GL_TEXTURE0+2);
         glBindTexture(GL_TEXTURE_2D, plan_text);
 
